@@ -1,0 +1,96 @@
+---
+title: "Officials in the NHL who Worked in High Scoring Games"
+subtitle: "Stats MAS405 Spring 2021:\nAssignment 4"
+author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
+date: "5/9/2021"
+output: 
+  pdf_document:
+    latex_engine : xelatex
+header-includes:
+ \usepackage{fontspec}
+ \usepackage{background}
+ \usepackage{float}
+ \backgroundsetup{
+ scale=1.3,
+ color=black,
+ opacity=0.10,
+ angle=0,
+ pages=all,
+ contents={\includegraphics[width=25cm,height=40cm]{nhl_logo.jpeg}}
+ }
+
+
+---
+```{r TOP, echo=FALSE, message=FALSE, eval=TRUE, results='hide'}
+
+#usethis::edit_r_environ()
+
+projpath <- getwd()
+if(!exists("xdbsock")) {
+    xdbsock <- ""
+    cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+library(RMySQL)
+library(knitr)
+library(xtable)
+drv <- dbDriver("MySQL")
+
+
+xdbuser <- Sys.getenv("MAS405_AWS_DZES_DB_RO_USER") ### 
+xpw     <- Sys.getenv("MAS405_AWS_DZES_DB_RO_PW") ### 
+xdbname <- Sys.getenv("MAS405_AWS_DZES_DB_RO_DBNAME") ### 
+xdbhost <- Sys.getenv("MAS405_AWS_DZES_DB_RO_HOST") ###
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_DZES_DB_RO_PORT") )
+
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+```
+## Introduction
+<!--
+%In the NHL, many officials will work together on a game. We were more curious in breaking apart the officials and looking at how many games each individual official worked.
+-->
+For Assignment 4, we wanted to look into which officials had reffered in which players had scored more than 3 points within the game.
+```{r runQuery1, echo=FALSE, eval=TRUE, results='hide'}
+final_query <- "WITH high_game AS
+(
+SELECT player.gameID, game.officials FROM nhl_playersDate_1 player
+LEFT JOIN nhl_gameDate_1 game
+ON player.gameID = game.gameID
+WHERE player.goals > 3
+)
+select official_name,count(distinct gameID) gameCnt from (
+(
+SELECT substring_index(officials,';',1) official_name,
+gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(substring_index(officials,';',2),';',-1) official_name
+,gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(substring_index(officials,';',3),';',-1) official_name,
+gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(officials,';',-1) official_name,gameID FROM high_game
+)
+) x
+group by official_name
+order by 2 desc, 1 asc"
+output <- dbGetQuery(con, final_query)
+output
+```
+```{r include=FALSE}
+library(dplyr)
+```
+```{r echo=FALSE, runQueryTables}
+output <- output %>%
+  rename(Name = official_name, Count = gameCnt)
+  kable(output)
+#output
+```

@@ -1,0 +1,126 @@
+---
+title: "Officials in the NHL who Worked in High Scoring Games"
+author: |-
+  David Sun, Elizabeth Morales, Jaehee Jeong,
+  Sarah Heuschele, Tyler Chun, Yolanda Jin
+date: "5/9/2021"
+output: pdf_document
+subtitle: |-
+  Assignment 4
+  Stats MAS405 Spring 2021:
+---
+---
+title: "Officials in the NHL who Worked in High Scoring Games"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex:  true
+    toc: no
+    toc_depth: '3'
+  html_document:
+    theme: paper
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+header-includes:
+ \usepackage{fontspec}
+ \usepackage{background}
+ \usepackage{float}
+ \backgroundsetup{
+ scale=1,
+ color=black,
+ opacity=0.20,
+ angle=0,
+ pages=all,
+ contents={\includegraphics[width=25cm,height=40cm]{nba_action_02.jpg}}
+ }
+ \setmainfont{Avenir} 
+---
+
+```{r TOP, echo=FALSE, message=FALSE, eval=TRUE, results='hide'}
+
+projpath <- getwd()
+
+if(!exists("xdbsock")) {
+    xdbsock <- ""
+    cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+
+library(RMySQL)
+library(knitr)
+library(xtable)
+
+drv <- dbDriver("MySQL")
+
+MAS405_AWS_MY_DB_ADMIN_PW='18@@ROuserPW405fun'
+MAS405_AWS_MY_DB_ADMIN_HOST='database-1.c6xjgbcc7ask.us-west-1.rds.amazonaws.com'
+MAS405_AWS_MY_DB_ADMIN_USER='ROuser'
+MAS405_AWS_MY_DB_ADMIN_DBNAME='db1'
+MAS405_AWS_MY_DB_ADMIN_PORT=3306
+
+xdbuser <- MAS405_AWS_MY_DB_ADMIN_USER
+xpw     <- MAS405_AWS_MY_DB_ADMIN_PW
+xdbname <- MAS405_AWS_MY_DB_ADMIN_DBNAME
+xdbhost <- MAS405_AWS_MY_DB_ADMIN_HOST
+xdbport <- as.integer(MAS405_AWS_MY_DB_ADMIN_PORT)
+
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+
+```
+
+## Introduction
+
+<!--
+%In the NHL, many officials will work together on a game. We were more curious in breaking apart the officials and looking at how many games each individual official worked. 
+-->
+For Assignment 4, we wanted to look into which officials had reffered in which players had scored more than 3 points within the game.
+
+
+```{r runQuery1, echo=FALSE, eval=TRUE, results='hide'}
+final_query <- "WITH high_game AS
+(
+SELECT player.gameID, game.officials FROM nhl_playersDate_1 player
+LEFT JOIN nhl_gameDate_1 game
+ON player.gameID = game.gameID
+WHERE player.goals > 3 
+)
+select official_name,count(distinct gameID) gameCnt from (
+(
+SELECT substring_index(officials,';',1) official_name,
+gameID FROM high_game
+) 
+union all
+(
+SELECT 
+substring_index(substring_index(officials,';',2),';',-1) official_name
+,gameID FROM high_game
+) 
+union all
+(
+SELECT 
+substring_index(substring_index(officials,';',3),';',-1) official_name,
+gameID FROM high_game
+) 
+union all
+(
+SELECT
+substring_index(officials,';',-1) official_name,gameID FROM high_game
+)
+) x
+group by official_name
+order by 2 desc, 1 asc"
+
+output <- dbGetQuery(con, final_query)
+output
+```
+
+```{r include=FALSE}
+library(dplyr)
+```
+
+```{r echo=FALSE, runQueryTables}
+output <- output %>%
+  rename(Name = official_name, Count = gameCnt)
+  kable(output)
+#output
+```
