@@ -1,16 +1,5 @@
 ---
 title: "Officials in the NHL who Worked in High Scoring Games"
-author: |-
-  David Sun, Elizabeth Morales, Jaehee Jeong,
-  Sarah Heuschele, Tyler Chun, Yolanda Jin
-date: "5/9/2021"
-output: pdf_document
-subtitle: |-
-  Assignment 4
-  Stats MAS405 Spring 2021:
----
----
-title: "Officials in the NHL who Worked in High Scoring Games"
 output:
   pdf_document:
     latex_engine: xelatex
@@ -32,7 +21,6 @@ header-includes:
  opacity=0.20,
  angle=0,
  pages=all,
- contents={\includegraphics[width=25cm,height=40cm]{nba_action_02.jpg}}
  }
  \setmainfont{Avenir} 
 ---

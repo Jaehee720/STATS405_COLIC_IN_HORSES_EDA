@@ -11,6 +11,8 @@ output:
       toc: yes
       toc_depth: '3'
       geometry: left=10mm, right=10mm, top=25mm, bottom=25mm
+      
+
 ---
 ```{r TOP, echo=FALSE, message=FALSE, eval=TRUE, results='hide'}
 
@@ -79,6 +81,8 @@ output
 ```{r include=FALSE}
 library(dplyr)
 ```
+
+
 ```{r echo=FALSE, runQueryTables}
 output <- output %>%
   rename(Name = official_name, Count = gameCnt)
