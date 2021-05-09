@@ -1,7 +1,11 @@
 ---
 title: "Officials in the NHL who Worked in High Scoring Games"
-subtitle: "Stats MAS405 Spring 2021:\nAssignment 4"
-author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
+subtitle: "Stats MAS405 Spring 2021:Assignment 4"
+
+author: 
+  - "Team Name : i need a \\</br\\>"
+  - "David Sun, Elizabeth Morales, Jaehee Jeong"
+  - "Sarah Heuschele, Tyler Chun, Yolanda Jin"
 date: "5/9/2021"
 fontsize: "12pt"
 output: 
