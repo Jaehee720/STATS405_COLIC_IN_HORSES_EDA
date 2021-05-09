@@ -1,0 +1,134 @@
+---
+title: "Officials in the NHL who Worked in High Scoring Games"
+subtitle: "Stats MAS405 Spring 2021:\nAssignment 4"
+author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
+date: "5/9/2021"
+fontsize: "12pt"
+output: 
+  pdf_document: 
+    includes:
+      in_header: header.tex
+      toc: yes
+      toc_depth: '3'
+      geometry: left=10mm, right=10mm, top=25mm, bottom=25mm
+---
+
+```{r TOP, echo=FALSE, message=FALSE, eval=TRUE, results='hide'}
+#usethis::edit_r_environ()
+
+projpath <- getwd()
+if(!exists("xdbsock")) {
+    xdbsock <- ""
+    cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+library(RMySQL)
+library(knitr)
+library(xtable)
+library(dplyr)
+library(kableExtra)
+drv <- dbDriver("MySQL")
+
+
+xdbuser <- Sys.getenv("MAS405_AWS_DZES_DB_RO_USER") ### 
+xpw     <- Sys.getenv("MAS405_AWS_DZES_DB_RO_PW") ### 
+xdbname <- Sys.getenv("MAS405_AWS_DZES_DB_RO_DBNAME") ### 
+xdbhost <- Sys.getenv("MAS405_AWS_DZES_DB_RO_HOST") ###
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_DZES_DB_RO_PORT") )
+
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+```
+## Introduction
+
+We have a breakdown of the officials that partook in games where a player scored more than 3 points. The table below will show the date of the game, an abbreviation of the home and visiting teams, a list of officials during the game and finally a reference to the player who scored and that player’s time on the ice.
+
+```{r runQuery1, echo=FALSE, warning=FALSE, eval=TRUE, message=FALSE}
+query_1 = "select pl.date, gm.VT, gm.HT,gm.officials,pl.team,concat(pl.firstname,' ',pl.lastname) as First_Lastname,pl.timeonice TimeonIce,pl.goals from db1.nhl_playersDate_1 pl 
+inner join db1.nhl_gameDate_1 gm on pl.gameid = gm.gameid
+where goals > 3	;"
+
+output_1 = dbGetQuery(con,query_1)
+
+
+
+output_1[ , "VT" ]<-gsub("\xe9", "e", output_1[ , "VT" ])
+output_1[ , "HT" ]<-gsub("\xe9", "e", output_1[ , "HT" ])
+output_1[ , "officials" ]<-gsub("\xe9", "e", output_1[ , "officials" ])
+output_1[ , "team" ]<-gsub("\xe9", "e", output_1[ , "team" ])
+
+output_1[,"TimeonIce"]<-round(output_1[,"TimeonIce"],2)
+
+captureUpper<-function(v){
+s<-strsplit(output_1[,v], " ")
+sapply(s, function(x){
+  toupper(paste(substring(x, 1, 1), collapse = ""))
+})
+}
+
+output_1[,"VT"]<-captureUpper('VT')
+output_1[,"HT"]<-captureUpper('HT')
+output_1[,"team"]<-captureUpper('team')
+
+
+output_1 %>%
+  kable("latex",booktabs=T) %>%
+  kable_styling(font_size = 7,position = "center")
+
+
+```
+
+
+<!--
+%In the NHL, many officials will work together on a game. We were more curious in breaking apart the officials and looking at how many games each individual official worked.
+-->
+
+For Assignment 4, we wanted to look into which officials had reffered in which players had scored more than 3 points within the game.
+
+```{r runQuery2, echo=FALSE, eval=TRUE, results='hide'}
+final_query <- "WITH high_game AS
+(
+SELECT player.gameID, game.officials FROM nhl_playersDate_1 player
+LEFT JOIN nhl_gameDate_1 game
+ON player.gameID = game.gameID
+WHERE player.goals > 3
+)
+select official_name,count(distinct gameID) gameCnt from (
+(
+SELECT substring_index(officials,';',1) official_name,
+gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(substring_index(officials,';',2),';',-1) official_name
+,gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(substring_index(officials,';',3),';',-1) official_name,
+gameID FROM high_game
+)
+union all
+(
+SELECT
+substring_index(officials,';',-1) official_name,gameID FROM high_game
+)
+) x
+group by official_name
+order by 2 desc, 1 asc"
+output <- dbGetQuery(con, final_query)
+output
+```
+
+
+```{r echo=FALSE, runQueryTables}
+output <- output %>%
+  rename(Name = official_name, Count = gameCnt) %>%
+  kable("latex") %>%
+  kable_styling(font_size = 7,position = "center", latex_options="scale_down")  
+
+output
+```
+
+
+
