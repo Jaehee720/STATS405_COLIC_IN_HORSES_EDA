@@ -1,7 +1,11 @@
 ---
 title: "Officials in the NHL who Worked in High Scoring Games"
-subtitle: "Stats MAS405 Spring 2021:\nAssignment 4"
-author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
+subtitle: "Stats MAS405 Spring 2021:Assignment 4"
+
+author: 
+  - "Team Name : i need a \\</br\\>"
+  - "David Sun, Elizabeth Morales, Jaehee Jeong"
+  - "Sarah Heuschele, Tyler Chun, Yolanda Jin"
 date: "5/9/2021"
 fontsize: "12pt"
 output: 
@@ -11,11 +15,10 @@ output:
       toc: yes
       toc_depth: '3'
       geometry: left=10mm, right=10mm, top=25mm, bottom=25mm
-      
-
 ---
-```{r TOP, echo=FALSE, message=FALSE, eval=TRUE, results='hide'}
 
+
+```{r TOP, echo=FALSE, message=FALSE, eval=TRUE,warning=FALSE, results='hide'}
 #usethis::edit_r_environ()
 
 projpath <- getwd()
@@ -26,6 +29,8 @@ if(!exists("xdbsock")) {
 library(RMySQL)
 library(knitr)
 library(xtable)
+library(dplyr)
+library(kableExtra)
 drv <- dbDriver("MySQL")
 
 
@@ -37,12 +42,41 @@ xdbport <- as.integer( Sys.getenv("MAS405_AWS_DZES_DB_RO_PORT") )
 
 con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
 ```
+
+
+
+```{r runQueryDate, echo=FALSE, message=FALSE,warning=FALSE, eval=TRUE, results='hide'}
+
+##### get min and max date
+
+qstr <- "SELECT MIN(date), MAX(date) FROM nhl_playersDate_1"
+
+xx <- dbGetQuery(con, qstr)
+xx
+
+xMinDataDate <- xx[1, 1]
+xMaxDataDate <- xx[1, 2]
+
+xminDD <- format( strptime(xMinDataDate, "%Y%m%d"), "%Y-%m-%d")
+xmaxDD <- format( strptime(xMaxDataDate, "%Y%m%d"), "%Y-%m-%d")
+
+xpntgoal <- 3
+
+```
+
+
+
 ## Introduction
+
+
 <!--
 %In the NHL, many officials will work together on a game. We were more curious in breaking apart the officials and looking at how many games each individual official worked.
 -->
-For Assignment 4, we wanted to look into which officials had reffered in which players had scored more than 3 points within the game.
-```{r runQuery1, echo=FALSE, eval=TRUE, results='hide'}
+
+For Assignment 4, we wanted to look into which officials had referred in which players had scored more than 3 points within the game. We are analyzing NHL game and player
+data from `r xminDD` to `r xmaxDD`.
+
+```{r runQuery2, echo=FALSE, eval=TRUE,warning=FALSE, results='hide'}
 final_query <- "WITH high_game AS
 (
 SELECT player.gameID, game.officials FROM nhl_playersDate_1 player
@@ -78,14 +112,50 @@ order by 2 desc, 1 asc"
 output <- dbGetQuery(con, final_query)
 output
 ```
-```{r include=FALSE}
-library(dplyr)
-```
 
 
-```{r echo=FALSE, runQueryTables}
+```{r echo=FALSE,warning=FALSE}
 output <- output %>%
-  rename(Name = official_name, Count = gameCnt)
-  kable(output)
-#output
+  rename(Name = official_name, Count = gameCnt) %>%
+  kable("latex",longtable=TRUE) %>%
+  kable_styling(font_size = 7,position = "center",latex_options = c( "repeat_header"))  
+
+output
 ```
+
+For more details, we have a breakdown of the officials that partook in games where a player scored more than 3 points. The table below will show the date of the game, an abbreviation of the home and visiting teams, a list of officials during the game and finally a reference to the player who scored and that player’s time on the ice.
+
+```{r runQuery1, echo=FALSE, warning=FALSE, eval=TRUE, message=FALSE}
+query_1 = "select pl.date, gm.VT, gm.HT,gm.officials,pl.team,concat(pl.firstname,' ',pl.lastname) as First_Lastname,pl.timeonice TimeonIce,pl.goals from db1.nhl_playersDate_1 pl 
+inner join db1.nhl_gameDate_1 gm on pl.gameid = gm.gameid
+where goals > 3	;"
+
+output_1 = dbGetQuery(con,query_1)
+
+output_1[ , "VT" ]<-gsub("\xe9", "e", output_1[ , "VT" ])
+output_1[ , "HT" ]<-gsub("\xe9", "e", output_1[ , "HT" ])
+output_1[ , "officials" ]<-gsub("\xe9", "e", output_1[ , "officials" ])
+output_1[ , "team" ]<-gsub("\xe9", "e", output_1[ , "team" ])
+
+output_1[,"TimeonIce"]<-round(output_1[,"TimeonIce"],2)
+
+captureUpper<-function(v){
+s<-strsplit(output_1[,v], " ")
+sapply(s, function(x){
+  toupper(paste(substring(x, 1, 1), collapse = ""))
+})
+}
+
+output_1[,"VT"]<-captureUpper('VT')
+output_1[,"HT"]<-captureUpper('HT')
+output_1[,"team"]<-captureUpper('team')
+
+
+output_1 %>%
+  kable("latex",booktabs=T) %>%
+  kable_styling(font_size = 7,position = "center")
+
+
+```
+
+
