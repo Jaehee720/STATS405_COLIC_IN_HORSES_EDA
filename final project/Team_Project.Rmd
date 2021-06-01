@@ -114,6 +114,8 @@ summary(result1)
 str(result1)
 ```
 
+
+
 ```{r age_outcome}
 
 library(ggplot2)
@@ -138,6 +140,69 @@ result3 <- dbGetQuery(con, query3)
 
 ggplot(data=result3,aes(x=surgery,fill=outcome)) +
   geom_bar(aes(y=(..count..)),position=position_dodge()) 
+```
+
+
+```{r piecharts}
+query4_1 <- "select age,count(age) age_cnt from horse group by age"
+result4_1 <- dbGetQuery(con, query4_1)
+
+head(result4_1)
+
+ggplot(result4_1,aes(x="",y=age_cnt,fill=age)) + geom_bar(stat="identity",width=1) + 
+  coord_polar("y",start=0)
+
+
+query4_2 <- "select outcome,count(outcome) outcome_cnt from horse group by outcome"
+result4_2 <- dbGetQuery(con, query4_2)
+ggplot(result4_2,aes(x="",y=outcome_cnt,fill=outcome )) + geom_bar(stat="identity",width=1) + 
+  coord_polar("y",start=0)
+```
+
+```{r surgical_lesion}
+query5 <- "select outcome,surgical_lesion from horse"
+result5 <- dbGetQuery(con, query5)
+
+head(result5)
+
+ggplot(data=result5,aes(x=surgical_lesion,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge())
+
+```
+```{r total_protein}
+
+query6 <- "select id,total_protein,outcome from horse"
+result6 <- dbGetQuery(con, query6)
+
+head(result6)
+
+result6$outcome<-as.factor(result6$outcome)
+ggplot(data =result6, aes(y=total_protein,color=outcome)) + 
+  geom_boxplot(notch=F)
+library(dplyr)
+
+query6_1 <- "select outcome,avg(total_protein) mean_protein,STDDEV_SAMP(total_protein) sd, count(distinct id) horse_cnt from horse group by outcome"
+result6_1 <- dbGetQuery(con, query6_1)
+
+
+#Protein in the guts
+# query6_2 <- "select id,abdomo_protein,outcome from horse"
+# result6_2 <- dbGetQuery(con, query6_2)
+# 
+# ggplot(data =result6_2, aes(y=abdomo_protein,color=outcome)) + 
+#   geom_boxplot(notch=F)
+
+
+
+```
+```{r cellvolume}
+query7 <- "select id,packed_cell_volume,outcome from horse"
+result7 <- dbGetQuery(con, query7)
+
+ggplot(data =result7, aes(y=packed_cell_volume,color=outcome)) + 
+  geom_boxplot() 
+
+
 
 
 ```
