@@ -1,0 +1,112 @@
+---
+title: "Team_Project"
+author: "Tyler Chun"
+date: "6/1/2021"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+#########################
+#########################
+#########################
+options(stringsAsFactors=FALSE, width=200)
+projpath <- getwd()
+if(!exists("xdbsock")) {
+  xdbsock <- ""
+  cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+library(RMySQL)
+library(rjson)
+drv <- dbDriver("MySQL")
+########################################
+#############
+xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER")
+xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW")
+xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME")
+xdbhost <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_HOST")
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PORT") )
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+################## get info
+dbListTables(con)
+dbGetInfo(con)
+qstr <- "SHOW TABLES"
+xx <- dbGetQuery(con, qstr)
+xx
+xdf_myTables <- xx
+xdf_myTables
+```
+
+
+
+#### Tasks
+
+## Abstract
+
+Celiotomy, commonly refered to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to adress a number of other lesians around the abdominal. 
+
+## Introduction
+
+## Method(s)
+1. Data Collection
+2. Exploratory Data Analysis 
+
+## Data
+Our data was sourced from the University of California, Irvine Machine Learning Repository. 
+
+This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
+
+The data has 299 observations and 27 parameters that range from continuous to discrete and nominal variables.
+Below you can find an outline of the variables found within the dataset as well as their respective description.
+
+**Variable Name**        **Description**
+-----------------------  ------------------------------------------------------------------------
+ID                       a row indicator which uniquely identifies each row
+surgery                  was the horse treated with or without surgery                                        
+age                      identify if the horse in an adult or a child (young identified as under 
+                         6 months)     
+hospital_number          the case number assigned to the horse (same number if a horse is 
+                         treated twice)
+rectal_temp              the temperature of the horse's rectum recorded in degrees Celsius
+pulse                    a horse's heart rate measured in beats per minute
+respiratory_rate         the number of breaths a horse takes per minute
+temp_of_extremities      a subjective way to measure the condition of outermost circulation by 
+                         the temperature
+peripheral_pulse         a subjective way to measure the condition of outermost circulation by 
+                         pulse
+mucous_membrane          a record of the color of the mucous membranes as an indicator of 
+                         circulation
+capillary_refill_time    measuring the time to refill the capillaries 
+pain                     a measure of the horse's pain level (not to be taken as a linear 
+                         variable)
+peristalsis              an indication of the activity in the horse's gut
+abdominal_distention     measure of the amount of air/gas filling the horse's gut as an 
+                         indicator of a health problem
+nasogastric_tube         amount of gas coming out of the nasogastric tube
+nasogastric_reflux       the amount of reflux within the nasogastric tube
+nasogastric_reflux_ph    ph of the reflux within the nasogastric tube
+rectal_exam_feces        the amount of feces found within the rectal
+abdomen                  an indicator to how the abdomen (small and large intestine) is in 
+                         relation to feces
+packed_cell_volume       number of red cells in the blood by volume
+total_protein            total amount of protein found in the blood
+abdomo_appearance        the color of the fluid taken from the horse's abdominal cavity
+abdomo_protein           total amount of protein found in the gut
+outcome                  current status of the horse: alive, dead, or euthanized
+surgical_lesion          could the lesion and/or problem be treated with surgery
+lesion_1                 indicator of the site, type, subtype, specific code for lesion 1
+lesion_2                 indicator of the site, type, subtype, specific code for lesion 2
+lesion_3                 indicator of the site, type, subtype, specific code for lesion 3
+cp_data                  indicates if there is pathology data present
+-----------------------  ------------------------------------------------------------------------
+
+## Conclusions
+
+## Bibliography and References
+Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
+
+Colic Surgery in Horses. (n.d.). Retrieved from https://www.acvs.org/surgical-procedures/colic-surgery-horses
+
