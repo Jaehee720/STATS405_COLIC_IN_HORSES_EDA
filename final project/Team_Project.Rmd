@@ -103,6 +103,45 @@ lesion_3                 indicator of the site, type, subtype, specific code for
 cp_data                  indicates if there is pathology data present
 -----------------------  ------------------------------------------------------------------------
 
+```{r headsummary}
+query1 <- "select * from horse"
+result1 <- dbGetQuery(con, query1)
+
+head(result1)
+
+summary(result1)
+
+str(result1)
+```
+
+```{r age_outcome}
+
+library(ggplot2)
+query2 <- "select age,outcome from horse"
+result2 <- dbGetQuery(con, query2)
+
+ggplot(data=result2,aes(x=outcome,fill=age)) + geom_bar(aes(y=(..count..)))
+
+ggplot(data=result2,aes(x=age,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge())
+
+
+```
+
+```{r surgery_outcome}
+
+library(ggplot2)
+query3 <- "select surgery,outcome from horse"
+result3 <- dbGetQuery(con, query3)
+
+
+
+ggplot(data=result3,aes(x=surgery,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge()) 
+
+
+```
+
 ## Conclusions
 
 ## Bibliography and References
