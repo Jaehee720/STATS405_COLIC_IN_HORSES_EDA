@@ -1,12 +1,19 @@
 ---
 title: "Final Project"
 subtitle: "Research Article"
-author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
-date: "5/27/2021"
+author: |
+  | David Sun, Elizabeth Morales, Jaehee Jeong
+  | Sarah Heuschele, Tyler Chun, Yolanda Jin
+  |
+  | Team Name: i need a \</br\>
+date: "6/1/2021"
 margins: 0.5cm
 fontsize: 12pt
 line-height: 1.5
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -134,13 +141,17 @@ horse %>%
 There were 16 horses that came back. Of those horses, we can see a breakdown of how many lived, died, or were euthized. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-horse %>%
+tb1<-horse %>%
   group_by(hospital_number) %>%
   summarise(n = n_distinct(ID)) %>%
   filter(n > 1) %>%
   left_join(horse, by = c('hospital_number' = 'hospital_number')) %>%
   group_by(outcome) %>%
   summarise(n = n_distinct(hospital_number))
+knitr::kable(as.data.frame(tb1))
+
+
+
 ```
 
 Comparing the Horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The propotion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps show that disregarding all other factors and demograpics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. 
@@ -180,7 +191,7 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
   scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
                     guide_legend(title = "Visits and Income"))
-  theme_void()
+#  theme_void()
 ```
 
 ## Physical Attributes
@@ -194,20 +205,21 @@ A normal rectal temperature for a horse sits around 37.8. A temperature above ca
 
 Cold and Cool temperatures are associated with possible shock of the horse, while hotter extremities (in this case denoted as 'Warm') are assocaited with elevated rectal temperatures. Both cases signal that there is an underlying health issue with the horse. 
 ```{R echo=FALSE, message=FALSE, warning=FALSE}
-horse %>%
+
+
+
+bg1<-horse %>%
   filter(temp_of_extremities != "NA") %>%
   group_by(outcome, temp_of_extremities) %>%
   summarise(n = n_distinct(ID)) %>%
   ggplot(., aes(fill=temp_of_extremities, y=n, x=outcome)) + 
   geom_bar(position="fill", stat="identity") +
-  labs(title = 'Proportion of Extremity Temperatures by Outcome',fill = 'Temperature',
-       x ="Outcome", y = 'Proportion of Temperatures')
-  
-```
+  labs(title = 'Proportion of Extremity\n Temperatures by Outcome',fill = 'Temperature',
+       x ="Outcome", y = 'Proportion of Temperatures') + 
+  theme(legend.position = "bottom")
 
-Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
-```{R echo=FALSE, message=FALSE, warning=FALSE}
-horse %>%
+
+bg2<-horse %>%
   filter(peripheral_pulse != "NA") %>%
   mutate(grouping  = case_when(
     peripheral_pulse == 'absent' ~ 'problematic',
@@ -219,35 +231,50 @@ horse %>%
   summarise(n = n_distinct(ID)) %>%
   ggplot(., aes(fill=grouping, y=n, x=outcome)) + 
   geom_bar(position="fill", stat="identity") +
-  labs(title = 'Proportion of Good and Band Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse')
+  labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
+  theme(legend.position = "bottom")
 
-```
 
-The Mucos Membrane color can also be an indicator of poor circulation and lead to an earlier admittion into the hospital. The following table denotes the meaning beind the colors;
-**Color**            **Meaning**
--------------------  ------------------------------------------------------------------------
-Normal Pink          indicate a normal or slightly increased circulation
-Bright Pink          indicate a normal or slightly increased circulation
-Pale Pink            occurs in early stages of shock
-Pale Cyanotic        indicates of a serious circulatory issue
-Bright Red/Injected  indicates septicemia
-Dark Cyanotic        indicates of a serious circulatory issue
 
-```{R echo=FALSE, message=FALSE, warning=FALSE}
-horse %>%
+bg3<-horse %>%
   filter(mucous_membrane != "NA") %>%
   group_by(mucous_membrane, outcome) %>%
   summarise(n = n_distinct(ID)) %>%
   ggplot(., aes(x=outcome, y=n, fill=mucous_membrane)) + 
   geom_bar(position="fill", stat="identity") +
-  labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane')
+  labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
+  theme(legend.position = "bottom")
+
+  
+require(gridExtra)
+
+grid.arrange(bg1,bg2,ncol=2)
+grid.arrange(bg3,ncol=2)
+
+
 
 ```
+
+Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
+
+
+The Mucos Membrane color can also be an indicator of poor circulation and lead to an earlier admittion into the hospital. The following table denotes the meaning beind the colors;
+
+
+
+**Color**                 **Meaning**
+-----------------------  ------------------------------------------------------------------------
+Normal Pink               indicate a normal or slightly increased circulation
+Bright Pink               indicate a normal or slightly increased circulation
+Pale Pink                 occurs in early stages of shock
+Pale Cyanotic             indicates of a serious circulatory issue
+Bright Red/Injected       indicates septicemia
+Dark Cyanotic             indicates of a serious circulatory issue
+-----------------------  ------------------------------------------------------------------------
 
 capillary refill time
 The longer the refill, the poorer the circulation
-```{R}
-```
+
 
 ## Outcome Analysis
 
@@ -261,6 +288,7 @@ horse %>%
 ```
 
 This table provides some input to the most common Lesions found on Horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 table <- horse %>%
   group_by(lesion_1) %>%
@@ -270,7 +298,21 @@ table <- horse %>%
   select(age, outcome, surgery, lesion_1, ID) %>%
   ftable(., row.vars=c("age", "outcome"), col.vars=c("surgery", "lesion_1"))
 
-knitr::kable(as.data.frame(table))
+df = as.data.frame(table) %>% 
+  arrange(desc(Freq))
+
+knitr::kable(df[1:10,])
+
+
+```
+
+```{r TwoWayTable_Pain_Outcome, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# Display two-way table for Pain and Outcome
+library(pander)
+query9 <- "SELECT * FROM db1.horse;"
+result9 <- dbGetQuery(con, query9)
+twoWay_Pain_Outcome <- pander(addmargins(table(result9$pain, result9$outcome)))
+twoWay_Pain_Outcome
 ```
 
 ## Conclusions
