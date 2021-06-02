@@ -1,17 +1,18 @@
 ---
-title: "Team_Project"
-author: 
-  - "Team Name : i need a \\</br\\>"
-  - "David Sun, Elizabeth Morales, Jaehee Jeong"
-  - "Sarah Heuschele, Tyler Chun, Yolanda Jin"
+title: "Research Article"
+author: |
+  | David Sun, Elizabeth Morales, Jaehee Jeong
+  | Sarah Heuschele, Tyler Chun, Yolanda Jin
+  |
+  | Team Name: i need a \</br\>
 date: "6/1/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-#### Tasks
 
 ## 1) Abstract
 
