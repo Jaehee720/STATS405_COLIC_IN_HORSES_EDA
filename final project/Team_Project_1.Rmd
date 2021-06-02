@@ -1,9 +1,10 @@
 ---
 title: "Team_Project"
-author: 
-  - "Team Name : i need a \\</br\\>"
-  - "David Sun, Elizabeth Morales, Jaehee Jeong"
-  - "Sarah Heuschele, Tyler Chun, Yolanda Jin"
+author: |
+  | David Sun, Elizabeth Morales, Jaehee Jeong
+  | Sarah Heuschele, Tyler Chun, Yolanda Jin
+  |
+  | Team Name: i need a \</br\>
 date: "6/1/2021"
 output: html_document
 ---
@@ -11,56 +12,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-```{r}
-#########################
-#########################
-#########################
-options(stringsAsFactors=FALSE, width=200)
-projpath <- getwd()
-if(!exists("xdbsock")) {
-  xdbsock <- ""
-  cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
-}
-library(RMySQL)
-library(rjson)
-drv <- dbDriver("MySQL")
-########################################
-#############
-xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER")
-xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW")
-xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME")
-xdbhost <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_HOST")
-xdbport <- as.integer( Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PORT") )
-con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
-################## get info
-dbListTables(con)
-dbGetInfo(con)
-qstr <- "SHOW TABLES"
-xx <- dbGetQuery(con, qstr)
-xx
-xdf_myTables <- xx
-xdf_myTables
-```
-
-
-
-#### Tasks
-
-## Abstract
+## 1) Abstract
 
 Celiotomy, commonly referred to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to address a number of other lesians around the abdominal. 
 
-## Introduction
+## 2) Introduction
 
 Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
 
 
-## Method(s)
+## 3) Method(s)
 1. Data Collection
 2. Exploratory Data Analysis 
 
-## Data
+## 4) Data
 Our data was sourced from the University of California, Irvine Machine Learning Repository. 
 
 This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
@@ -108,6 +73,37 @@ lesion_2                 indicator of the site, type, subtype, specific code for
 lesion_3                 indicator of the site, type, subtype, specific code for lesion 3
 cp_data                  indicates if there is pathology data present
 -----------------------  ------------------------------------------------------------------------
+
+```{r}
+#########################
+#########################
+#########################
+options(stringsAsFactors=FALSE, width=200)
+projpath <- getwd()
+if(!exists("xdbsock")) {
+  xdbsock <- ""
+  cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+library(RMySQL)
+library(rjson)
+drv <- dbDriver("MySQL")
+########################################
+#############
+xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER")
+xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW")
+xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME")
+xdbhost <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_HOST")
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PORT") )
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+################## get info
+dbListTables(con)
+dbGetInfo(con)
+qstr <- "SHOW TABLES"
+xx <- dbGetQuery(con, qstr)
+xx
+xdf_myTables <- xx
+xdf_myTables
+```
 
 ```{r headsummary}
 query1 <- "select * from horse"
@@ -265,9 +261,7 @@ twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, r
 twoWay_nasogastric_reflux_Outcome
 ```
 
-
-
-## Conclusions
+## 5) Conclusions
 
 ## Bibliography and References
 Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
