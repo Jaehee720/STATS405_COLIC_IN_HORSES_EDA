@@ -4,6 +4,8 @@ subtitle: "Research Article"
 author: "David Sun, Elizabeth Morales, Jaehee Jeong,\nSarah Heuschele, Tyler Chun, Yolanda Jin"
 date: "5/27/2021"
 margins: 0.5cm
+fontsize: 12pt
+line-height: 1.5
 output: pdf_document
 ---
 
@@ -11,7 +13,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r AWS Connection, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r AWS Connection, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 projpath <- getwd()
 
 if(!exists("xdbsock")) {
@@ -22,6 +24,8 @@ if(!exists("xdbsock")) {
 library(RMySQL)
 library(knitr)
 library(xtable)
+library(dplyr)
+library(ggplot2)
 
 drv <- dbDriver("MySQL")
 
@@ -40,19 +44,31 @@ xdbport <- as.integer(PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT)
 con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
 ```
 
-#### Tasks
-
-## Abstract
-
-Celiotomy, commonly refered to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to adress a number of other lesians around the abdominal. 
+Table of Contents 
+1: Introduction
+2: Exploratory Data Analysis
+  a: Data Dictionary
+  b: Horse Demographics
+  c: Hospital Demographics
+  d: Physical Attributes
+  e: Circulation Attributes
+  f: Outcome Analysis
+3: Conclusions
+4: Bibliography and References
+5: Appendix
 
 ## Introduction
 
-## Method(s)
-1. Data Collection
-2. Exploratory Data Analysis 
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
 
-## Data
+
+#### Exploratory Data Analysis
+
+## Data Dictionary
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
+```
+
 Our data was sourced from the University of California, Irvine Machine Learning Repository. 
 
 This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
@@ -101,10 +117,165 @@ lesion_3                 indicator of the site, type, subtype, specific code for
 cp_data                  indicates if there is pathology data present
 -----------------------  ------------------------------------------------------------------------
 
+## Horse Demographics
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+horse %>%
+  group_by(age,outcome) %>%
+  summarise(n = n()) %>%
+  ggplot(., aes(x=age,fill=outcome,y = n)) + 
+    geom_bar(stat = "identity",position=position_dodge()) +
+  labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+```
+
+## Hospital Demographics 
+
+There were 16 horses that came back. Of those horses, we can see a breakdown of how many lived, died, or were euthized. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+horse %>%
+  group_by(hospital_number) %>%
+  summarise(n = n_distinct(ID)) %>%
+  filter(n > 1) %>%
+  left_join(horse, by = c('hospital_number' = 'hospital_number')) %>%
+  group_by(outcome) %>%
+  summarise(n = n_distinct(hospital_number))
+```
+
+Comparing the Horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The propotion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps show that disregarding all other factors and demograpics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+data <- horse %>%
+  group_by(hospital_number) %>%
+  summarise(n = n_distinct(ID)) %>%
+  left_join(horse, by = c('hospital_number' = 'hospital_number')) %>%
+  mutate(grouping = case_when(
+    n > 1 ~ "many",
+    TRUE ~ "once")) %>%
+  group_by(grouping, outcome) %>%
+  summarise(n = n_distinct(ID)) %>%
+  mutate(class = paste0(grouping," ",outcome)) %>%
+  mutate(class2 = case_when(
+    class == "many died" ~ "Multiple Visits - Died",
+    class == "many euthanized" ~ "Multiple Visits - Euthanized",
+    class == "many lived" ~ "Multiple Visits - Lived",
+    
+    class == "once died" ~ "One Visits - Died",
+    class == "once euthanized" ~ "One Visits - Euthanized",
+    class == "once lived" ~ "One Visits - Lived"
+  )) %>%
+  mutate(class3 = case_when(
+    class == "many died" ~ 1,
+    class == "many euthanized" ~ 3,
+    class == "many lived" ~ 5,
+    
+    class == "once died" ~ 2,
+    class == "once euthanized" ~ 4,
+    class == "once lived" ~ 6
+  ))
+
+ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
+  geom_bar(stat="identity", width=1, color="black") +
+  coord_polar("y", start=0) +
+  labs(title = "Outcome of Horse by Visits to Hospital") +
+  scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
+                    guide_legend(title = "Visits and Income"))
+  theme_void()
+```
+
+## Physical Attributes
+
+A normal rectal temperature for a horse sits around 37.8. A temperature above can come from an infection while a low temperature may be due to shock in the body. 
+```{r}
+# histogram of the horses rectal temperature
+```
+
+## Circulation Attributes
+
+Cold and Cool temperatures are associated with possible shock of the horse, while hotter extremities (in this case denoted as 'Warm') are assocaited with elevated rectal temperatures. Both cases signal that there is an underlying health issue with the horse. 
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+horse %>%
+  filter(temp_of_extremities != "NA") %>%
+  group_by(outcome, temp_of_extremities) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(fill=temp_of_extremities, y=n, x=outcome)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Extremity Temperatures by Outcome',fill = 'Temperature',
+       x ="Outcome", y = 'Proportion of Temperatures')
+  
+```
+
+Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+horse %>%
+  filter(peripheral_pulse != "NA") %>%
+  mutate(grouping  = case_when(
+    peripheral_pulse == 'absent' ~ 'problematic',
+    peripheral_pulse == 'increased' ~ 'normal',
+    peripheral_pulse == 'normal' ~ 'normal',
+    peripheral_pulse == 'reduced' ~ 'problematic'
+  )) %>%
+  group_by(outcome, grouping) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(fill=grouping, y=n, x=outcome)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Good and Band Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse')
+
+```
+
+The Mucos Membrane color can also be an indicator of poor circulation and lead to an earlier admittion into the hospital. The following table denotes the meaning beind the colors;
+**Color**            **Meaning**
+-------------------  ------------------------------------------------------------------------
+Normal Pink          indicate a normal or slightly increased circulation
+Bright Pink          indicate a normal or slightly increased circulation
+Pale Pink            occurs in early stages of shock
+Pale Cyanotic        indicates of a serious circulatory issue
+Bright Red/Injected  indicates septicemia
+Dark Cyanotic        indicates of a serious circulatory issue
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+horse %>%
+  filter(mucous_membrane != "NA") %>%
+  group_by(mucous_membrane, outcome) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(x=outcome, y=n, fill=mucous_membrane)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane')
+
+```
+
+capillary refill time
+The longer the refill, the poorer the circulation
+```{R}
+```
+
+## Outcome Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+horse %>%
+  group_by(surgical_lesion, outcome) %>%
+  summarise(n = n()) %>%
+  ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
+  geom_bar(stat = "identity",position=position_dodge()) +
+  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")
+```
+
+This table provides some input to the most common Lesions found on Horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+table <- horse %>%
+  group_by(lesion_1) %>%
+  summarise(n = n_distinct(ID)) %>%
+  filter(n > mean(n)) %>%
+  left_join(horse, by = c('lesion_1' = 'lesion_1')) %>%
+  select(age, outcome, surgery, lesion_1, ID) %>%
+  ftable(., row.vars=c("age", "outcome"), col.vars=c("surgery", "lesion_1"))
+
+knitr::kable(as.data.frame(table))
+```
+
 ## Conclusions
 
 ## Bibliography and References
 Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
 
 Colic Surgery in Horses. (n.d.). Retrieved from https://www.acvs.org/surgical-procedures/colic-surgery-horses
-
