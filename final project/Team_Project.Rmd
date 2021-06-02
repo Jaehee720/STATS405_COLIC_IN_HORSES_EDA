@@ -161,6 +161,8 @@ query4_2 <- "select outcome,count(outcome) outcome_cnt from horse group by outco
 result4_2 <- dbGetQuery(con, query4_2)
 ggplot(result4_2,aes(x="",y=outcome_cnt,fill=outcome )) + geom_bar(stat="identity",width=1) + 
   coord_polar("y",start=0)
+
+
 ```
 
 ```{r surgical_lesion}
@@ -171,6 +173,8 @@ head(result5)
 
 ggplot(data=result5,aes(x=surgical_lesion,fill=outcome)) +
   geom_bar(aes(y=(..count..)),position=position_dodge())
+
+knitr::kable(table(result5$outcome,result5$surgical_lesion))
 
 ```
 ```{r total_protein}
@@ -183,6 +187,9 @@ head(result6)
 result6$outcome<-as.factor(result6$outcome)
 ggplot(data =result6, aes(y=total_protein,color=outcome)) + 
   geom_boxplot(notch=F)
+
+#knitr::kable(result6$total_protein,result6$outcome)
+
 library(dplyr)
 
 query6_1 <- "select outcome,avg(total_protein) mean_protein,STDDEV_SAMP(total_protein) sd, count(distinct id) horse_cnt from horse group by outcome"
@@ -196,6 +203,8 @@ result6_1 <- dbGetQuery(con, query6_1)
 # ggplot(data =result6_2, aes(y=abdomo_protein,color=outcome)) + 
 #   geom_boxplot(notch=F)
 
+knitr::kable(as.data.frame(result6_1))
+
 
 
 ```
@@ -207,7 +216,10 @@ ggplot(data =result7, aes(y=packed_cell_volume,color=outcome)) +
   geom_boxplot() 
 
 
-
+result7 %>% group_by(outcome) %>% summarize(mean = mean(packed_cell_volume,na.rm=T),
+                                            sd = sd(packed_cell_volume,na.rm=T),
+                                            count = length(packed_cell_volume))
+                                            
 
 ```
 
@@ -218,6 +230,8 @@ query9 <- "SELECT * FROM db1.horse;"
 result9 <- dbGetQuery(con, query9)
 twoWay_Pain_Outcome <- pander(table(result9$pain, result9$outcome))
 twoWay_Pain_Outcome
+
+
 ```
 
 ```{r TwoWayTable_abdominal_distention_Outcome}
