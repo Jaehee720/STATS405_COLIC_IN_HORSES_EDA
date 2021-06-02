@@ -246,10 +246,17 @@ twoWay_abdominal_distention_Outcome
 # Display two-way table for nasogastric reflux and Outcome
 query11 <- "SELECT * FROM db1.horse;"
 result11 <- dbGetQuery(con, query11)
-twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, result10$outcome))
+twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, result11$outcome))
 twoWay_nasogastric_reflux_Outcome
 ```
 
+```{r TwoWayTable_nasogastric_reflux_Outcome}
+# Display two-way table for surgery and Outcome
+query12 <- "SELECT * FROM db1.horse;"
+result12 <- dbGetQuery(con, query12)
+twoWay_nasogastric_reflux_Outcome <- pander(table(result12$surgery, result12$outcome))
+twoWay_nasogastric_reflux_Outcome
+```
 
 
 ## Conclusions
