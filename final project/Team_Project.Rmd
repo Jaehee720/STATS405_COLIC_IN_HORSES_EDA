@@ -12,6 +12,8 @@ output:
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
 ```
 
 ## 1) Abstract
@@ -79,7 +81,6 @@ cp_data                  indicates if there is pathology data present
 
 ```{r}
 #########################
-
 options(stringsAsFactors=FALSE, width=200)
 projpath <- getwd()
 if(!exists("xdbsock")) {
@@ -89,9 +90,7 @@ if(!exists("xdbsock")) {
 library(RMySQL)
 library(rjson)
 drv <- dbDriver("MySQL")
-
 #########################
-
 xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER")
 xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW")
 xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME")
@@ -108,19 +107,18 @@ xdf_myTables <- xx
 xdf_myTables
 ```
 
-```{r headsummary}
+```{r headsummary1}
 query1 <- "select * from horse"
 result1 <- dbGetQuery(con, query1)
 
 head(result1)
 
-summary(result1)
+kable(summary(result1))
 
 str(result1)
 ```
 
 ```{r age_outcome}
-
 library(ggplot2)
 query2 <- "select age,outcome from horse"
 result2 <- dbGetQuery(con, query2)
@@ -129,15 +127,11 @@ ggplot(data=result2,aes(x=outcome,fill=age)) + geom_bar(aes(y=(..count..)))
 
 ggplot(data=result2,aes(x=age,fill=outcome)) +
   geom_bar(aes(y=(..count..)),position=position_dodge())
-
-
 ```
 
 ```{r surgery_outcome}
 query3 <- "select surgery,outcome from horse"
 result3 <- dbGetQuery(con, query3)
-
-
 
 ggplot(data=result3,aes(x=surgery,fill=outcome)) +
   geom_bar(aes(y=(..count..)),position=position_dodge()) 
@@ -152,13 +146,10 @@ head(result4_1)
 ggplot(result4_1,aes(x="",y=age_cnt,fill=age)) + geom_bar(stat="identity",width=1) + 
   coord_polar("y",start=0)
 
-
 query4_2 <- "select outcome,count(outcome) outcome_cnt from horse group by outcome"
 result4_2 <- dbGetQuery(con, query4_2)
 ggplot(result4_2,aes(x="",y=outcome_cnt,fill=outcome )) + geom_bar(stat="identity",width=1) + 
   coord_polar("y",start=0)
-
-
 ```
 
 ```{r surgical_lesion}
@@ -171,11 +162,9 @@ ggplot(data=result5,aes(x=surgical_lesion,fill=outcome)) +
   geom_bar(aes(y=(..count..)),position=position_dodge())
 
 knitr::kable(table(result5$outcome,result5$surgical_lesion))
-
 ```
 
 ```{r total_protein}
-
 query6 <- "select id,total_protein,outcome from horse"
 result6 <- dbGetQuery(con, query6)
 
@@ -192,7 +181,6 @@ library(dplyr)
 query6_1 <- "select outcome,avg(total_protein) mean_protein,STDDEV_SAMP(total_protein) sd, count(distinct id) horse_cnt from horse group by outcome"
 result6_1 <- dbGetQuery(con, query6_1)
 
-
 #Protein in the guts
 # query6_2 <- "select id,abdomo_protein,outcome from horse"
 # result6_2 <- dbGetQuery(con, query6_2)
@@ -201,9 +189,6 @@ result6_1 <- dbGetQuery(con, query6_1)
 #   geom_boxplot(notch=F)
 
 knitr::kable(as.data.frame(result6_1))
-
-
-
 ```
 
 ```{r cellvolume}
@@ -217,8 +202,6 @@ ggplot(data =result7, aes(y=packed_cell_volume,color=outcome)) +
 result7 %>% group_by(outcome) %>% summarize(mean = mean(packed_cell_volume,na.rm=T),
                                             sd = sd(packed_cell_volume,na.rm=T),
                                             count = length(packed_cell_volume))
-                                            
-
 ```
 
 ```{r TwoWayTable_Pain_Outcome}
@@ -228,8 +211,6 @@ query9 <- "SELECT * FROM db1.horse;"
 result9 <- dbGetQuery(con, query9)
 twoWay_Pain_Outcome <- pander(table(result9$pain, result9$outcome))
 twoWay_Pain_Outcome
-
-
 ```
 
 ```{r TwoWayTable_abdominal_distention_Outcome}
@@ -261,7 +242,6 @@ query13 <- "SELECT * FROM db1.horse;"
 result13 <- dbGetQuery(con, query13)
 twoWay_age_Outcome <- pander(table(result13$age,result13$outcome)/ nrow(result13)*100)
 twoWay_age_Outcome
-
 ```
 
 ## 5) Conclusions
