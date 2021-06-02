@@ -250,14 +250,21 @@ twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, r
 twoWay_nasogastric_reflux_Outcome
 ```
 
-```{r TwoWayTable_nasogastric_reflux_Outcome}
+```{r TwoWayTable_surgery_Outcome}
 # Display two-way table for surgery and Outcome
 query12 <- "SELECT * FROM db1.horse;"
 result12 <- dbGetQuery(con, query12)
-twoWay_nasogastric_reflux_Outcome <- pander(table(result12$surgery, result12$outcome))
-twoWay_nasogastric_reflux_Outcome
+twoWay_surgery_Outcome <- pander(table(result12$surgery, result12$outcome))
+twoWay_surgery_Outcome
 ```
+```{r TwoWayTable_age_Outcome}
+# Display two-way table for age and Outcome Frequency % Table
+query13 <- "SELECT * FROM db1.horse;"
+result13 <- dbGetQuery(con, query13)
+twoWay_age_Outcome <- pander(table(result13$age,result13$outcome)/ nrow(result13)*100)
+twoWay_age_Outcome
 
+```
 
 ## Conclusions
 
