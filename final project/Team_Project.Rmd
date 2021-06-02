@@ -1,6 +1,9 @@
 ---
 title: "Team_Project"
-author: "Tyler Chun"
+author: 
+  - "Team Name : i need a \\</br\\>"
+  - "David Sun, Elizabeth Morales, Jaehee Jeong"
+  - "Sarah Heuschele, Tyler Chun, Yolanda Jin"
 date: "6/1/2021"
 output: html_document
 ---
@@ -134,8 +137,6 @@ ggplot(data=result2,aes(x=age,fill=outcome)) +
 ```
 
 ```{r surgery_outcome}
-
-library(ggplot2)
 query3 <- "select surgery,outcome from horse"
 result3 <- dbGetQuery(con, query3)
 
@@ -221,7 +222,6 @@ twoWay_Pain_Outcome
 
 ```{r TwoWayTable_abdominal_distention_Outcome}
 # Display two-way table for abdominal distention and Outcome
-library(pander)
 query10 <- "SELECT * FROM db1.horse;"
 result10 <- dbGetQuery(con, query10)
 twoWay_abdominal_distention_Outcome <- pander(table(result10$abdominal_distention, result10$outcome))
@@ -230,7 +230,6 @@ twoWay_abdominal_distention_Outcome
 
 ```{r TwoWayTable_nasogastric_reflux_Outcome}
 # Display two-way table for nasogastric reflux and Outcome
-library(pander)
 query11 <- "SELECT * FROM db1.horse;"
 result11 <- dbGetQuery(con, query11)
 twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, result10$outcome))
