@@ -50,6 +50,9 @@ Celiotomy, commonly refered to as “colic surgery” is a type of surgery aroun
 
 ## Introduction
 
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
+
+
 ## Method(s)
 1. Data Collection
 2. Exploratory Data Analysis 
@@ -206,6 +209,35 @@ ggplot(data =result7, aes(y=packed_cell_volume,color=outcome)) +
 
 
 ```
+
+```{r TwoWayTable_Pain_Outcome}
+# Display two-way table for Pain and Outcome
+library(pander)
+query9 <- "SELECT * FROM db1.horse;"
+result9 <- dbGetQuery(con, query9)
+twoWay_Pain_Outcome <- pander(table(result9$pain, result9$outcome))
+twoWay_Pain_Outcome
+```
+
+```{r TwoWayTable_abdominal_distention_Outcome}
+# Display two-way table for abdominal distention and Outcome
+library(pander)
+query10 <- "SELECT * FROM db1.horse;"
+result10 <- dbGetQuery(con, query10)
+twoWay_abdominal_distention_Outcome <- pander(table(result10$abdominal_distention, result10$outcome))
+twoWay_abdominal_distention_Outcome
+```
+
+```{r TwoWayTable_nasogastric_reflux_Outcome}
+# Display two-way table for nasogastric reflux and Outcome
+library(pander)
+query11 <- "SELECT * FROM db1.horse;"
+result11 <- dbGetQuery(con, query11)
+twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, result10$outcome))
+twoWay_nasogastric_reflux_Outcome
+```
+
+
 
 ## Conclusions
 
