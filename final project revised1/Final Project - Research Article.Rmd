@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Final Project-Research Article"
 subtitle: "Research Article"
 author: |
   | David Sun, Elizabeth Morales, Jaehee Jeong
