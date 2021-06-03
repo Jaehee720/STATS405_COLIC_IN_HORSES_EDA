@@ -58,7 +58,7 @@ Celiotomy, commonly referred to as “colic surgery” is a type of surgery arou
 
 ## Introduction
 
-Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
 
 
 #### Exploratory Data Analysis
@@ -128,11 +128,12 @@ horse %>%
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 ```
 
-This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses.
+This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses. 
+Out of two hundred and seventy-five adult horses, one hundred and sixty-six (60%) horses have lived after treatment, whereas only 50% of young horses lived.
 
 ## Hospital Demographics 
 
-There were 16 horses that came back. Of those horses, we can see a breakdown of how many lived, died, or were euthized. 
+There were 16 horses that has multiple treatments. Of those horses, we can see a breakdown of how many lived, died, or were euthanized. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 tb1<-horse %>%
@@ -148,7 +149,7 @@ knitr::kable(as.data.frame(tb1))
 
 ```
 
-Comparing the Horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The propotion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps show that disregarding all other factors and demograpics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. 
+Comparing the horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The proportion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps to show that disregarding all other factors and demographics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanize or dying. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 data <- horse %>%
@@ -185,7 +186,7 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   coord_polar("y", start=0) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
   scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
-                    guide_legend(title = "Visits and Income"))
+                    guide_legend(title = "Visits and Outcome"))
 #  theme_void()
 ```
 
@@ -209,7 +210,7 @@ grid.arrange(ht1,ht2,ht3,ncol=3)
 
 ```
 
-The average temperatures are similar between the three outcomes; died, euthanized, and lived, but died horses’ temperatures are slightly higher and euthanized horses’ temperatures are lower than the other two and higher variation for died and euthanized horses. The distribution for lived horses had more stable rectal temperatures than the other two groups.
+The average temperatures are similar between the three outcomes; died, euthanized, and lived, but  temperatures of the horses which died are slightly higher with more cases (16%) ranging from 39 to 41 degree, and euthanized horses’ temperaturesare lower than the other two in the  range. There are higher variation for died and euthanized horses. The distribution for lived horses had more stable rectal temperatures than the other two groups.
 
 ## Circulation Attributes
 
@@ -233,9 +234,9 @@ bg1<-horse %>%
 bg2<-horse %>%
   filter(peripheral_pulse != "NA") %>%
   mutate(grouping  = case_when(
-    peripheral_pulse == 'absent' ~ 'problematic',
     peripheral_pulse == 'increased' ~ 'normal',
     peripheral_pulse == 'normal' ~ 'normal',
+    peripheral_pulse == 'absent' ~ 'problematic',
     peripheral_pulse == 'reduced' ~ 'problematic'
   )) %>%
   group_by(outcome, grouping) %>%
@@ -276,8 +277,8 @@ bg3<-horse %>%
   
 
 
-grid.arrange(bg1,bg2,ncol=2)
-grid.arrange(bg3,ncol=2)
+grid.arrange(bg1,bg2 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
+grid.arrange(bg3 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
 
 
 
@@ -328,7 +329,7 @@ horse %>%
   labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")
 ```
 
-This table provides some input to the most common Lesions found on Horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
+This table provides some input to the most common lesions found on horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 table <- horse %>%
@@ -351,7 +352,7 @@ knitr::kable(df[1:10,])
 
 ## Conclusions
 
-From the horse demographics, we have found that even though there is a very small number of young horses, there is a higher “lived” adult horse proportion than young horses. Horse’s hospital demographics show that if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. Those who lived have three times higher proportions(around 60%) of normal and warm temperatures than those who died or euthanized(18~20%). About 70% of lived horses had normal peripheral pulse and about 30% of died or euthanized horses had problematic peripheral pulses. The distribution for lived horses had more stable rectal temperatures than the other two groups. About 60% of the lived horses had normal circulation when about 20~25% of the died or euthanized horses had normal circulation. This two way table states that the more pain a horse has, it is less likely to be "lived" than "died" or "euthanized".
+From the horse demographics, we have found that even though there is a very small number of young horses, there is a higher “lived” adult horse proportion than young horses. This might be due to adult horses having more robust health system to recover from surgeries and illness. Horse’s hospital demographics show that if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. Those who lived have three times higher proportions (around 60%) of normal and warm temperatures than those who died or euthanized (18~20%). About 70% of lived horses had normal peripheral pulse and about 70% of died or euthanized horses had problematic peripheral pulses. The distribution for lived horses had more stable rectal temperatures than the other two groups. About 60% of the lived horses had normal circulation when about 20~25% of the died or euthanized horses had normal circulation. This two way table states that the more pain a horse has, it is less likely to be "lived" than "died" or "euthanized".
 ## Bibliography and References
 Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
 
