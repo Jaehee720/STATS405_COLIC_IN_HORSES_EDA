@@ -1,0 +1,272 @@
+---
+title: "Team_Project"
+author: |
+  | David Sun, Elizabeth Morales, Jaehee Jeong
+  | Sarah Heuschele, Tyler Chun, Yolanda Jin
+  |
+  | Team Name: i need a \</br\>
+date: "6/1/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1) Abstract
+
+Celiotomy, commonly referred to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to address a number of other lesians around the abdominal. 
+
+## 2) Introduction
+
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
+
+
+## 3) Method(s)
+1. Data Collection
+2. Exploratory Data Analysis 
+
+## 4) Data
+Our data was sourced from the University of California, Irvine Machine Learning Repository. 
+
+This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
+
+The data has 299 observations and 27 parameters that range from continuous to discrete and nominal variables.
+Below you can find an outline of the variables found within the dataset as well as their respective description.
+
+**Variable Name**        **Description**
+-----------------------  ------------------------------------------------------------------------
+ID                       a row indicator which uniquely identifies each row
+surgery                  was the horse treated with or without surgery                                        
+age                      identify if the horse in an adult or a child (young identified as under 
+                         6 months)     
+hospital_number          the case number assigned to the horse (same number if a horse is 
+                         treated twice)
+rectal_temp              the temperature of the horse's rectum recorded in degrees Celsius
+pulse                    a horse's heart rate measured in beats per minute
+respiratory_rate         the number of breaths a horse takes per minute
+temp_of_extremities      a subjective way to measure the condition of outermost circulation by 
+                         the temperature
+peripheral_pulse         a subjective way to measure the condition of outermost circulation by 
+                         pulse
+mucous_membrane          a record of the color of the mucous membranes as an indicator of 
+                         circulation
+capillary_refill_time    measuring the time to refill the capillaries 
+pain                     a measure of the horse's pain level (not to be taken as a linear 
+                         variable)
+peristalsis              an indication of the activity in the horse's gut
+abdominal_distention     measure of the amount of air/gas filling the horse's gut as an 
+                         indicator of a health problem
+nasogastric_tube         amount of gas coming out of the nasogastric tube
+nasogastric_reflux       the amount of reflux within the nasogastric tube
+nasogastric_reflux_ph    ph of the reflux within the nasogastric tube
+rectal_exam_feces        the amount of feces found within the rectal
+abdomen                  an indicator to how the abdomen (small and large intestine) is in 
+                         relation to feces
+packed_cell_volume       number of red cells in the blood by volume
+total_protein            total amount of protein found in the blood
+abdomo_appearance        the color of the fluid taken from the horse's abdominal cavity
+abdomo_protein           total amount of protein found in the gut
+outcome                  current status of the horse: alive, dead, or euthanized
+surgical_lesion          could the lesion and/or problem be treated with surgery
+lesion_1                 indicator of the site, type, subtype, specific code for lesion 1
+lesion_2                 indicator of the site, type, subtype, specific code for lesion 2
+lesion_3                 indicator of the site, type, subtype, specific code for lesion 3
+cp_data                  indicates if there is pathology data present
+-----------------------  ------------------------------------------------------------------------
+
+```{r}
+#########################
+#########################
+#########################
+options(stringsAsFactors=FALSE, width=200)
+projpath <- getwd()
+if(!exists("xdbsock")) {
+  xdbsock <- ""
+  cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+library(RMySQL)
+library(rjson)
+drv <- dbDriver("MySQL")
+########################################
+#############
+xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER")
+xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW")
+xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME")
+xdbhost <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_HOST")
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PORT") )
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+################## get info
+dbListTables(con)
+dbGetInfo(con)
+qstr <- "SHOW TABLES"
+xx <- dbGetQuery(con, qstr)
+xx
+xdf_myTables <- xx
+xdf_myTables
+```
+
+```{r headsummary}
+query1 <- "select * from horse"
+result1 <- dbGetQuery(con, query1)
+
+head(result1)
+
+knitr::kable(summary(result1))
+
+
+
+
+str(result1)
+```
+
+There is no column that represents a unique horse in the table. We tried to retrieve the number of horses by counting the distinct hospital_number which is their case number and they have the same case number when the horses are treated multiple times.
+
+```{r age_outcome}
+
+library(ggplot2)
+query2 <- "select distinct age,outcome, hospital_number from horse"
+result2 <- dbGetQuery(con, query2)
+
+ggplot(data=result2,aes(x=age,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge())
+
+query2_1 <- "select age,outcome,count(*) cnt from horse group by age,outcome"
+result2_1 <- dbGetQuery(con, query2_1)
+
+
+
+knitr::kable(table(result2$age,result2$outcome))
+
+```
+
+This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enought to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses.
+
+```{r surgery_outcome}
+query3 <- "select surgery,outcome from horse"
+result3 <- dbGetQuery(con, query3)
+
+
+
+ggplot(data=result3,aes(x=surgery,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge()) 
+```
+
+The graph shows the outcome of horses, either died, lived, or euthanized based on whether a surgery treatment was applied. There are 119 observations for no surgery, and 180 for surgery. 70% of the horses without surgery survived. For horses who had surgery, around 53% lived, and 32% have died.
+
+
+```{r piecharts}
+query4_1 <- "select age,count(age) age_cnt from horse group by age"
+result4_1 <- dbGetQuery(con, query4_1)
+
+
+
+ggplot(result4_1,aes(x="",y=age_cnt,fill=age)) + geom_bar(stat="identity",width=1) + 
+  coord_polar("y",start=0)
+
+knitr::kable(result4_1)
+
+
+query4_2 <- "select outcome,count(outcome) outcome_cnt from horse group by outcome"
+result4_2 <- dbGetQuery(con, query4_2)
+ggplot(result4_2,aes(x="",y=outcome_cnt,fill=outcome )) + geom_bar(stat="identity",width=1) + 
+  coord_polar("y",start=0)
+
+
+knitr::kable(result4_2)
+
+```
+
+```{r surgical_lesion}
+query5 <- "select outcome,surgical_lesion from horse"
+result5 <- dbGetQuery(con, query5)
+
+head(result5)
+
+ggplot(data=result5,aes(x=surgical_lesion,fill=outcome)) +
+  geom_bar(aes(y=(..count..)),position=position_dodge())
+
+knitr::kable(table(result5$outcome,result5$surgical_lesion))
+
+```
+```{r total_protein}
+
+query6 <- "select id,total_protein,outcome from horse"
+result6 <- dbGetQuery(con, query6)
+
+head(result6)
+
+result6$outcome<-as.factor(result6$outcome)
+ggplot(data =result6, aes(y=total_protein,color=outcome)) + 
+  geom_boxplot(notch=F)
+
+#knitr::kable(result6$total_protein,result6$outcome)
+
+library(dplyr)
+
+query6_1 <- "select outcome,avg(total_protein) mean_protein,STDDEV_SAMP(total_protein) sd, count(distinct id) horse_cnt from horse group by outcome"
+result6_1 <- dbGetQuery(con, query6_1)
+
+
+#Protein in the guts
+# query6_2 <- "select id,abdomo_protein,outcome from horse"
+# result6_2 <- dbGetQuery(con, query6_2)
+# 
+# ggplot(data =result6_2, aes(y=abdomo_protein,color=outcome)) + 
+#   geom_boxplot(notch=F)
+
+knitr::kable(as.data.frame(result6_1))
+
+
+
+```
+```{r cellvolume}
+query7 <- "select id,packed_cell_volume,outcome from horse"
+result7 <- dbGetQuery(con, query7)
+
+ggplot(data =result7, aes(y=packed_cell_volume,color=outcome)) + 
+  geom_boxplot() 
+
+
+result7 %>% group_by(outcome) %>% summarize(mean = mean(packed_cell_volume,na.rm=T),
+                                            sd = sd(packed_cell_volume,na.rm=T),
+                                            count = length(packed_cell_volume))
+                                            
+
+```
+
+```{r TwoWayTable_Pain_Outcome}
+# Display two-way table for Pain and Outcome
+library(pander)
+query9 <- "SELECT * FROM db1.horse;"
+result9 <- dbGetQuery(con, query9)
+twoWay_Pain_Outcome <- pander(table(result9$pain, result9$outcome))
+twoWay_Pain_Outcome
+
+
+```
+
+```{r TwoWayTable_abdominal_distention_Outcome}
+# Display two-way table for abdominal distention and Outcome
+query10 <- "SELECT * FROM db1.horse;"
+result10 <- dbGetQuery(con, query10)
+twoWay_abdominal_distention_Outcome <- pander(table(result10$abdominal_distention, result10$outcome))
+twoWay_abdominal_distention_Outcome
+```
+
+```{r TwoWayTable_nasogastric_reflux_Outcome}
+# Display two-way table for nasogastric reflux and Outcome
+query11 <- "SELECT * FROM db1.horse;"
+result11 <- dbGetQuery(con, query11)
+twoWay_nasogastric_reflux_Outcome <- pander(table(result11$nasogastric_reflux, result10$outcome))
+twoWay_nasogastric_reflux_Outcome
+```
+
+## 5) Conclusions
+
+## Bibliography and References
+Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
+
+Colic Surgery in Horses. (n.d.). Retrieved from https://www.acvs.org/surgical-procedures/colic-surgery-horses
+
