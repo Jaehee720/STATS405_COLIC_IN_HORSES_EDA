@@ -1,0 +1,370 @@
+---
+title: "Final Project"
+subtitle: "Research Article"
+author: |
+  | David Sun, Elizabeth Morales, Jaehee Jeong
+  | Sarah Heuschele, Tyler Chun, Yolanda Jin
+  |
+  | Team Name: i need a \</br\>
+date: "6/1/2021"
+margins: 0.5cm
+fontsize: 12pt
+line-height: 1.5
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r AWS Connection, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+projpath <- getwd()
+
+if(!exists("xdbsock")) {
+  xdbsock <- ""
+  cat("\n", "Parameter 'xdbsock' not found, setting to empty string for general usage", "\n")
+}
+
+library(RMySQL)
+library(knitr)
+library(xtable)
+library(dplyr)
+library(ggplot2)
+
+drv <- dbDriver("MySQL")
+
+PARTNER_MAS405_AWS_MY_DB_ADMIN_PW='18@@ROuserPW405fun'
+PARTNER_MAS405_AWS_MY_DB_ADMIN_HOST='stats405db.cziy0a015m5d.us-east-1.rds.amazonaws.com'
+PARTNER_MAS405_AWS_MY_DB_ADMIN_USER='ROuser'
+PARTNER_MAS405_AWS_MY_DB_ADMIN_DBNAME='db1'
+PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT=3306
+
+xdbuser <- PARTNER_MAS405_AWS_MY_DB_ADMIN_USER
+xpw     <- PARTNER_MAS405_AWS_MY_DB_ADMIN_PW
+xdbname <- PARTNER_MAS405_AWS_MY_DB_ADMIN_DBNAME
+xdbhost <- PARTNER_MAS405_AWS_MY_DB_ADMIN_HOST
+xdbport <- as.integer(PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT)
+
+con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+```
+
+Table of Contents 
+1: Introduction
+2: Exploratory Data Analysis
+  a: Data Dictionary
+  b: Horse Demographics
+  c: Hospital Demographics
+  d: Physical Attributes
+  e: Circulation Attributes
+  f: Outcome Analysis
+3: Conclusions
+4: Bibliography and References
+5: Appendix
+
+## Abstract
+
+Celiotomy, commonly referred to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to address a number of other lesions around the abdominal. 
+
+## Introduction
+
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in Horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
+
+
+#### Exploratory Data Analysis
+
+## Data Dictionary
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
+```
+
+Our data was sourced from the University of California, Irvine Machine Learning Repository. 
+
+This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
+
+The data has 299 observations and 27 parameters that range from continuous to discrete and nominal variables.
+Below you can find an outline of the variables found within the dataset as well as their respective description.
+
+**Variable Name**        **Description**
+-----------------------  ------------------------------------------------------------------------
+ID                       a row indicator which uniquely identifies each row
+surgery                  was the horse treated with or without surgery                                        
+age                      identify if the horse in an adult or a child (young identified as under 
+                         6 months)     
+hospital_number          the case number assigned to the horse (same number if a horse is 
+                         treated twice)
+rectal_temp              the temperature of the horse's rectum recorded in degrees Celsius
+pulse                    a horse's heart rate measured in beats per minute
+respiratory_rate         the number of breaths a horse takes per minute
+temp_of_extremities      a subjective way to measure the condition of outermost circulation by 
+                         the temperature
+peripheral_pulse         a subjective way to measure the condition of outermost circulation by 
+                         pulse
+mucous_membrane          a record of the color of the mucous membranes as an indicator of 
+                         circulation
+capillary_refill_time    measuring the time to refill the capillaries 
+pain                     a measure of the horse's pain level (not to be taken as a linear 
+                         variable)
+peristalsis              an indication of the activity in the horse's gut
+abdominal_distention     measure of the amount of air/gas filling the horse's gut as an 
+                         indicator of a health problem
+nasogastric_tube         amount of gas coming out of the nasogastric tube
+nasogastric_reflux       the amount of reflux within the nasogastric tube
+nasogastric_reflux_ph    ph of the reflux within the nasogastric tube
+rectal_exam_feces        the amount of feces found within the rectal
+abdomen                  an indicator to how the abdomen (small and large intestine) is in 
+                         relation to feces
+packed_cell_volume       number of red cells in the blood by volume
+total_protein            total amount of protein found in the blood
+abdomo_appearance        the color of the fluid taken from the horse's abdominal cavity
+abdomo_protein           total amount of protein found in the gut
+outcome                  current status of the horse: alive, dead, or euthanized
+surgical_lesion          could the lesion and/or problem be treated with surgery
+lesion_1                 indicator of the site, type, subtype, specific code for lesion 1
+lesion_2                 indicator of the site, type, subtype, specific code for lesion 2
+lesion_3                 indicator of the site, type, subtype, specific code for lesion 3
+cp_data                  indicates if there is pathology data present
+-----------------------  ------------------------------------------------------------------------
+
+## Horse Demographics
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+horse %>%
+  group_by(age,outcome) %>%
+  summarise(n = n()) %>%
+  ggplot(., aes(x=age,fill=outcome,y = n)) + 
+    geom_bar(stat = "identity",position=position_dodge()) +
+  labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+```
+
+This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses.
+
+## Hospital Demographics 
+
+There were 16 horses that came back. Of those horses, we can see a breakdown of how many lived, died, or were euthized. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+tb1<-horse %>%
+  group_by(hospital_number) %>%
+  summarise(n = n_distinct(ID)) %>%
+  filter(n > 1) %>%
+  left_join(horse, by = c('hospital_number' = 'hospital_number')) %>%
+  group_by(outcome) %>%
+  summarise(n = n_distinct(hospital_number))
+knitr::kable(as.data.frame(tb1))
+
+
+
+```
+
+Comparing the Horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The propotion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps show that disregarding all other factors and demograpics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+data <- horse %>%
+  group_by(hospital_number) %>%
+  summarise(n = n_distinct(ID)) %>%
+  left_join(horse, by = c('hospital_number' = 'hospital_number')) %>%
+  mutate(grouping = case_when(
+    n > 1 ~ "many",
+    TRUE ~ "once")) %>%
+  group_by(grouping, outcome) %>%
+  summarise(n = n_distinct(ID)) %>%
+  mutate(class = paste0(grouping," ",outcome)) %>%
+  mutate(class2 = case_when(
+    class == "many died" ~ "Multiple Visits - Died",
+    class == "many euthanized" ~ "Multiple Visits - Euthanized",
+    class == "many lived" ~ "Multiple Visits - Lived",
+    
+    class == "once died" ~ "One Visits - Died",
+    class == "once euthanized" ~ "One Visits - Euthanized",
+    class == "once lived" ~ "One Visits - Lived"
+  )) %>%
+  mutate(class3 = case_when(
+    class == "many died" ~ 1,
+    class == "many euthanized" ~ 3,
+    class == "many lived" ~ 5,
+    
+    class == "once died" ~ 2,
+    class == "once euthanized" ~ 4,
+    class == "once lived" ~ 6
+  ))
+
+ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
+  geom_bar(stat="identity", width=1, color="black") +
+  coord_polar("y", start=0) +
+  labs(title = "Outcome of Horse by Visits to Hospital") +
+  scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
+                    guide_legend(title = "Visits and Income"))
+#  theme_void()
+```
+
+## Physical Attributes
+
+A normal rectal temperature for a horse sits around 37.8. A temperature above can come from an infection while a low temperature may be due to shock in the body. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+require(gridExtra)
+ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_boxplot()
+
+ht1= ggplot(data=horse %>% filter(outcome=="died"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="red") + coord_flip() + labs(title = "Died Horses by rectal temp") 
+
+ht2= ggplot(data=horse %>% filter(outcome=="euthanized"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="green") + coord_flip() + labs(title = "Euthan. Horses by rectal temp")
+ht3= ggplot(data=horse %>% filter(outcome=="lived"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
+
+ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
+
+
+grid.arrange(ht1,ht2,ht3,ncol=3)
+
+```
+
+The average temperatures are similar between the three outcomes; died, euthanized, and lived, but died horses’ temperatures are slightly higher and euthanized horses’ temperatures are lower than the other two and higher variation for died and euthanized horses. The distribution for lived horses had more stable rectal temperatures than the other two groups.
+
+## Circulation Attributes
+
+Cold and Cool temperatures are associated with possible shock of the horse, while hotter extremities (in this case denoted as 'Warm') are associated with elevated rectal temperatures. Both cases signal that there is an underlying health issue with the horse. 
+
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+
+
+
+bg1<-horse %>%
+  filter(temp_of_extremities != "NA") %>%
+  group_by(outcome, temp_of_extremities) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(fill=temp_of_extremities, y=n, x=outcome)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Extremity\n Temperatures by Outcome',fill = 'Temperature',
+       x ="Outcome", y = 'Proportion of Temperatures') + 
+  theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))
+
+
+bg2<-horse %>%
+  filter(peripheral_pulse != "NA") %>%
+  mutate(grouping  = case_when(
+    peripheral_pulse == 'absent' ~ 'problematic',
+    peripheral_pulse == 'increased' ~ 'normal',
+    peripheral_pulse == 'normal' ~ 'normal',
+    peripheral_pulse == 'reduced' ~ 'problematic'
+  )) %>%
+  group_by(outcome, grouping) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(fill=grouping, y=n, x=outcome)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
+  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
+
+
+
+# bg3<-horse %>%
+#   filter(mucous_membrane != "NA") %>%
+#   group_by(mucous_membrane, outcome) %>%
+#   summarise(n = n_distinct(ID)) %>%
+#   ggplot(., aes(x=outcome, y=n, fill=mucous_membrane)) + 
+#   geom_bar(position="fill", stat="identity") +
+#   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
+#   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
+bg3<-horse %>%
+  filter(mucous_membrane != "NA") %>%
+  mutate(grouping = case_when(
+    mucous_membrane == 'normal_pink' ~ 'normal',
+    mucous_membrane == 'bright_pink' ~ 'normal',
+    mucous_membrane == 'pale_cyanotic' ~ 'problematic',
+    mucous_membrane == 'pale_pink' ~ 'problematic',
+    mucous_membrane == 'dark_cyanotic' ~ 'problematic',
+    mucous_membrane == 'bright_red' ~ 'problematic'
+  )) %>%
+  group_by(outcome, grouping) %>%
+  summarise(n = n_distinct(ID)) %>%
+  ggplot(., aes(x=outcome, y=n, fill=grouping)) + 
+  geom_bar(position="fill", stat="identity") +
+  labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
+  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
+
+
+  
+
+
+grid.arrange(bg1,bg2,ncol=2)
+grid.arrange(bg3,ncol=2)
+
+
+
+
+```
+
+Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
+
+
+The Mucos Membrane color can also be an indicator of poor circulation and lead to an earlier admittion into the hospital. The following table denotes the meaning beind the colors;
+
+
+
+**Color**                 **Meaning**
+-----------------------  ------------------------------------------------------------------------
+Normal Pink               indicate a normal or slightly increased circulation
+Bright Pink               indicate a normal or slightly increased circulation
+Pale Pink                 occurs in early stages of shock
+Pale Cyanotic             indicates of a serious circulatory issue
+Bright Red/Injected       indicates septicemia
+Dark Cyanotic             indicates of a serious circulatory issue
+-----------------------  ------------------------------------------------------------------------
+
+capillary refill time
+The longer the refill, the poorer the circulation
+
+## Pain Attributes
+
+```{r TwoWayTable_Pain_Outcome, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# Display two-way table for Pain and Outcome
+library(pander)
+query9 <- "SELECT * FROM db1.horse;"
+result9 <- dbGetQuery(con, query9)
+twoWay_Pain_Outcome <- pander(addmargins(table(result9$pain, result9$outcome)))
+twoWay_Pain_Outcome
+```
+
+This two way table states that the more pain a horse has, it is less likely to be "lived" than "died" or "euthanized". For example, when horses feel extreme pain, there are only 1/3 of horses to be "lived" when the other 2/3 were either "died" or "euthanized". However, when horses alert status, over 90% of horses to be "lived".
+
+## Outcome Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+horse %>%
+  group_by(surgical_lesion, outcome) %>%
+  summarise(n = n()) %>%
+  ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
+  geom_bar(stat = "identity",position=position_dodge()) +
+  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")
+```
+
+This table provides some input to the most common Lesions found on Horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+table <- horse %>%
+  group_by(lesion_1) %>%
+  summarise(n = n_distinct(ID)) %>%
+  filter(n > mean(n)) %>%
+  left_join(horse, by = c('lesion_1' = 'lesion_1')) %>%
+  select(age, outcome, surgery, lesion_1, ID) %>%
+  ftable(., row.vars=c("age", "outcome"), col.vars=c("surgery", "lesion_1"))
+
+df = as.data.frame(table) %>% 
+  arrange(desc(Freq))
+
+knitr::kable(df[1:10,])
+
+
+```
+
+
+
+## Conclusions
+
+From the horse demographics, we have found that even though there is a very small number of young horses, there is a higher “lived” adult horse proportion than young horses. Horse’s hospital demographics show that if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. Those who lived have three times higher proportions(around 60%) of normal and warm temperatures than those who died or euthanized(18~20%). About 70% of lived horses had normal peripheral pulse and about 30% of died or euthanized horses had problematic peripheral pulses. The distribution for lived horses had more stable rectal temperatures than the other two groups. About 60% of the lived horses had normal circulation when about 20~25% of the died or euthanized horses had normal circulation. This two way table states that the more pain a horse has, it is less likely to be "lived" than "died" or "euthanized".
+## Bibliography and References
+Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
+
+Colic Surgery in Horses. (n.d.). Retrieved from https://www.acvs.org/surgical-procedures/colic-surgery-horses
