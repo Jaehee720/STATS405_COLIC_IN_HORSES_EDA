@@ -353,7 +353,9 @@ knitr::kable(df[1:10,])
 ## Conclusions
 
 From the horse demographics, we have found that even though there is a very small number of young horses, there is a higher “lived” adult horse proportion than young horses. This might be due to adult horses having more robust health system to recover from surgeries and illness. Horse’s hospital demographics show that if a horse was to return to the hospital, they had a 20% higher chance of being euthanized or dying. Those who lived have three times higher proportions (around 60%) of normal and warm temperatures than those who died or euthanized (18~20%). About 70% of lived horses had normal peripheral pulse and about 70% of died or euthanized horses had problematic peripheral pulses. The distribution for lived horses had more stable rectal temperatures than the other two groups. About 60% of the lived horses had normal circulation when about 20~25% of the died or euthanized horses had normal circulation. This two way table states that the more pain a horse has, it is less likely to be "lived" than "died" or "euthanized".
+
 ## Bibliography and References
+
 Colic emergencies " large animal hospital " College of veterinary medicine " University of Florida. (n.d.). Retrieved May 28, 2021, from https://largeanimal.vethospitals.ufl.edu/hospital-services/surgery/colic/
 
 Colic Surgery in Horses. (n.d.). Retrieved from https://www.acvs.org/surgical-procedures/colic-surgery-horses
