@@ -51,18 +51,6 @@ xdbport <- as.integer(PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT)
 con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
 ```
 
-Table of Contents 
-1: Introduction
-2: Exploratory Data Analysis
-  a: Data Dictionary
-  b: Horse Demographics
-  c: Hospital Demographics
-  d: Physical Attributes
-  e: Circulation Attributes
-  f: Outcome Analysis
-3: Conclusions
-4: Bibliography and References
-5: Appendix
 
 ## Abstract
 
