@@ -69,7 +69,7 @@ Our data was sourced from the University of California, Irvine Machine Learning 
 
 2. Data cleaning
 
-When we generated two-way tables, we did not include null values. However, a lot of observations have at least one null value of the variables, we decided to keep all the observations.
+When we generated two-way tables, we did not include null values. However, a lot of observations have at least one null value of the variables, so we decided to keep all the observations.
 
 3. Exploratory Data Analysis
 
