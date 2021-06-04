@@ -1,19 +1,23 @@
 ---
-title: "STAT 405: Final Project"
-subtitle: "Research Article"
+title: 'STAT 405: Final Project'
 author: |
   | David Sun, Elizabeth Morales, Jaehee Jeong
   | Sarah Heuschele, Tyler Chun, Yolanda Jin
   |
   | Team Name: i need a \</br\>
 date: "6/1/2021"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
 margins: 0.5cm
 fontsize: 12pt
 line-height: 1.5
-output: 
-  pdf_document:
-    toc: true
-    toc_depth: 2
+subtitle: Research Article
 ---
 
 ```{r setup, include=FALSE}
@@ -62,7 +66,7 @@ Celiotomy, commonly referred to as “colic surgery” is a type of surgery arou
 
 ## Introduction
 
-Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome.
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their status, outcome.
 
 ## Method(s)
 
@@ -137,7 +141,7 @@ horse %>%
   summarise(n = n()) %>%
   ggplot(., aes(x=age,fill=outcome,y = n)) + 
     geom_bar(stat = "identity",position=position_dodge()) +
-    geom_text(aes(label = outcome), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
+    geom_text(aes(label = n), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
   labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
   
   scale_fill_manual(values=safe_colorblind_palette[1:3])
@@ -159,9 +163,6 @@ tb1<-horse %>%
   group_by(outcome) %>%
   summarise(n = n_distinct(hospital_number))
 knitr::kable(as.data.frame(tb1))
-
-
-
 ```
 
 Comparing the horses that came back to the hospital numerous times to the horses that only visited once. We can see that there is a larger gap in the proportion of horses that need to be euthanized once returning to the hospital. The proportion of horses that returned to the hospital and were either euthanized or died (50%) is much larger than the proportion of horses that only went to the hospital once (39%). This helps to show that disregarding all other factors and demographics, if a horse was to return to the hospital, they had a 20% higher chance of being euthanize or dying. 
@@ -201,10 +202,13 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   #geom_label_repel(aes(label = class2,y =n),
   #                 size = 4, min.segment.length = 0, show.legend = FALSE, box.padding = 2,         #                  position= "stack",segment.linetype = 6,
   #                 segment.curvature = -1e-20) +
+  geom_text(aes(label = paste(round(n / sum(n) * 100, 1), "%"), x = 1.3), color="white",
+            position = position_stack(vjust = 0.5)) +
   coord_polar("y", start=0) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
   scale_fill_manual(values = safe_colorblind_palette[1:6],
-                    guide_legend(title = "Visits and Outcome"))
+                    guide_legend(title = "Visits and Outcome")) +
+  theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
@@ -214,8 +218,9 @@ A normal rectal temperature for a horse sits around 37.8. A temperature above ca
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data=horse,aes(x=rectal_temp,fill=outcome)) + 
-  geom_histogram(bins=10,color="blue") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count") +
-  scale_fill_manual(values=safe_colorblind_palette[1:3])
+  geom_histogram(bins=10,color="black") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count") +
+  scale_fill_manual(values=safe_colorblind_palette[1:3])+
+  theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
@@ -236,7 +241,8 @@ bg1<-horse %>%
   labs(title = 'Proportion of Extremity\n Temperatures by Outcome',fill = 'Temperature',
        x ="Outcome", y = 'Proportion of Temperatures') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))+
-  scale_fill_manual(values=safe_colorblind_palette[1:4])
+  scale_fill_manual(values=safe_colorblind_palette[1:4])+
+  theme(plot.title = element_text(hjust = 0.5))
 
 
 bg2<-horse %>%
@@ -253,7 +259,8 @@ bg2<-horse %>%
   geom_bar(position="fill", stat="identity") +
   labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
-  scale_fill_manual(values=safe_colorblind_palette[1:2])
+  scale_fill_manual(values=safe_colorblind_palette[1:2])+
+  theme(plot.title = element_text(hjust = 0.5))
 
 
 
@@ -281,7 +288,8 @@ bg3<-horse %>%
   geom_bar(position="fill", stat="identity") +
   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
-  scale_fill_manual(values=safe_colorblind_palette[1:4])
+  scale_fill_manual(values=safe_colorblind_palette[1:4])+
+  theme(plot.title = element_text(hjust = 0.5))
 
 grid.arrange(bg1,bg2 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
 grid.arrange(bg3 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
@@ -330,7 +338,9 @@ horse %>%
   ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
   geom_bar(stat = "identity",position=position_dodge()) +
   labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")+
-  scale_fill_manual(values=safe_colorblind_palette[1:3])
+  scale_fill_manual(values=safe_colorblind_palette[1:3])+
+  geom_text(aes(label = n), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 This table provides some input to the most common lesions found on horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
