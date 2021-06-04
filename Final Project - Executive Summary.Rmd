@@ -36,6 +36,9 @@ knitr::knit_hooks$set(plot = function(x, options) {  # set new plot hook ...
   }
   return(x)
 })
+
+safe_colorblind_palette <- c("#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", 
+                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888")
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
@@ -84,7 +87,9 @@ horse %>%
   summarise(n = n()) %>%
   ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
   geom_bar(stat = "identity",position=position_dodge()) +
-  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome")
+  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome")+
+  scale_fill_manual(values=safe_colorblind_palette[1:3])+
+    geom_text(aes(label = n), size = 3, position=position_dodge(width=0.9), vjust=-0.25)
 ```
 
 This analysis is proved useful in determining if colic surgery can be beneficial in saving a horse’s life when admitted into the hospital. Our initial hypothesis was that the increase in surgeries to treat gastrointestinal tract complications in horses would lead to an increase in the number of horses that lived. 
