@@ -64,19 +64,21 @@ Horses are regarded as powerful and courageous animal that are highly desired fo
 ## Method(s)
 
 1. Data collection
+
+Our data was sourced from the University of California, Irvine Machine Learning Repository. This specific dataset was donated on August 6, 1989, by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
+
 2. Data cleaning
+
+When we generated two-way tables, we did not include null values. However, a lot of observations have at least one null value of the variables, we decided to keep all the observations.
+
 3. Exploratory Data Analysis
 
-#### Exploratory Data Analysis
+To analyze the dataset, we performed Exploratory Data Analysis (EDA.) EDA is following under data dictionary.
 
 ## Data Dictionary
 ```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
 ```
-
-Our data was sourced from the University of California, Irvine Machine Learning Repository. 
-
-This specific dataset was donated August 6, 1989 by Will Taylor. It was created for use by Mary McLeish & Matt Cecile who belong to the Department of Computer Science at the University of Guelph in Guelph, Ontario, Canada.
 
 The data has 299 observations and 27 parameters that range from continuous to discrete and nominal variables.
 Below you can find an outline of the variables found within the dataset as well as their respective description.
