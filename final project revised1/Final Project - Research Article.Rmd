@@ -33,6 +33,7 @@ library(knitr)
 library(xtable)
 library(dplyr)
 library(ggplot2)
+library(ggrepel)
 
 drv <- dbDriver("MySQL")
 
@@ -58,8 +59,13 @@ Celiotomy, commonly referred to as “colic surgery” is a type of surgery arou
 
 ## Introduction
 
-Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome given that the horse underwent Colic Surgery.
+Horses are regarded as powerful and courageous animal that are highly desired for riding, ranch work, jumping, racing, or dressage. As with any animal, there are always complications that may arise in regards to their health. This is especially true in horses. Horses can develop health problems at any stage in life and some are more susceptible to health problems than others. Our dataset focuses on horses who suffer from Colic. Colic is defined as having abdominal pains but in horses it is referred to problems in gastro-intestinal tract. Some common causes of Colic are High grain based diets/Low forage diets, Moldy/Tainted feed, Abrupt change in feed, Parasite infestation , Lack of water consumption leading to impaction colics, Sand ingestion, Long term use of NSAIDS, Stress and Dental problems. About 10% of horses die from colic which is why its important to understand variables that can contribute to their outcome.
 
+## Method(s)
+
+1. Data collection
+2. Data cleaning
+3. Exploratory Data Analysis
 
 #### Exploratory Data Analysis
 
@@ -124,8 +130,10 @@ horse %>%
   summarise(n = n()) %>%
   ggplot(., aes(x=age,fill=outcome,y = n)) + 
     geom_bar(stat = "identity",position=position_dodge()) +
+    geom_text(aes(label = outcome), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
   labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+  
 ```
 
 This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses. 
@@ -181,13 +189,19 @@ data <- horse %>%
     class == "once lived" ~ 6
   ))
 
-ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
-  geom_bar(stat="identity", width=1, color="black") +
-  coord_polar("y", start=0) +
-  labs(title = "Outcome of Horse by Visits to Hospital") +
-  scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
-                    guide_legend(title = "Visits and Outcome"))
-#  theme_void()
+
+  ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
+    geom_bar(stat="identity", width=1, color="black") +
+    coord_polar("y", start=0) +
+    geom_label_repel(aes(label = class2,y =n),
+                   size = 4, min.segment.length = 0, show.legend = FALSE, box.padding = 2, position= "stack",segment.linetype = 6,
+    segment.curvature = -1e-20) +
+    #geom_text(aes(label = class2),
+    #        position = position_stack(vjust = 0.5)) +
+    labs(title = "Outcome of Horse by Visits to Hospital") +
+    scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
+                      guide_legend(title = "Visits and Outcome"))
+
 ```
 
 ## Physical Attributes
@@ -198,10 +212,10 @@ A normal rectal temperature for a horse sits around 37.8. A temperature above ca
 require(gridExtra)
 ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_boxplot()
 
-ht1= ggplot(data=horse %>% filter(outcome=="died"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="red") + coord_flip() + labs(title = "Died Horses by rectal temp") 
+ht1= ggplot(data=horse %>% filter(outcome=="died"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="red") + coord_flip() + labs(title = "Died Horses by rectal temp") + theme(plot.title = element_text(size=10))
 
-ht2= ggplot(data=horse %>% filter(outcome=="euthanized"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="green") + coord_flip() + labs(title = "Euthan. Horses by rectal temp")
-ht3= ggplot(data=horse %>% filter(outcome=="lived"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
+ht2= ggplot(data=horse %>% filter(outcome=="euthanized"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="green") + coord_flip() + labs(title = "Euthan. Horses by rectal temp")+ theme(plot.title = element_text(size=10))
+ht3= ggplot(data=horse %>% filter(outcome=="lived"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")+ theme(plot.title = element_text(size=10))
 
 ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
 
