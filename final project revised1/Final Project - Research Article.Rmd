@@ -54,8 +54,7 @@ con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, 
 
 
 ## Abstract
-
-Celiotomy, commonly referred to as “colic surgery” is a type of surgery around the abdomin of a horse. According to the American College of Vetinary Surgeons, colic surgery is used to address many issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract within the intestines. The surgery is also used to address a number of other lesions around the abdominal. 
+The purpose of this research article is to look at the presence of Colic in horses and how certain courses of treatment (undergoing colic surgery or not) affects the longevity of the horse. The data gave us a look into 299 hospital cases of horses that were admitted due to poor health, and of those horses which lived, died, or were euthanized. Through exploratory analysis, we were able to look at horse outcomes given variables associated with Colic and Colic Surgery. Additionally, we explored the key characteristics of the horse’s condition to determine if the outcome could have been different had they received surgery, especially the horses that had symptoms related to Colic Surgery.
 
 ## Introduction
 
