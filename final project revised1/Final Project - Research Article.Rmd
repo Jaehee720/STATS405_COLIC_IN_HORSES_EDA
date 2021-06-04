@@ -50,6 +50,9 @@ xdbhost <- PARTNER_MAS405_AWS_MY_DB_ADMIN_HOST
 xdbport <- as.integer(PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT)
 
 con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
+
+safe_colorblind_palette <- c("#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", 
+                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888")
 ```
 
 
@@ -124,6 +127,8 @@ lesion_3                 indicator of the site, type, subtype, specific code for
 cp_data                  indicates if there is pathology data present
 -----------------------  ------------------------------------------------------------------------
 
+### EDA
+
 ## Horse Demographics
 
 ```{R echo=FALSE, message=FALSE, warning=FALSE}
@@ -135,7 +140,7 @@ horse %>%
     geom_text(aes(label = outcome), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
   labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
   
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+  scale_fill_manual(values=safe_colorblind_palette[1:3])
 ```
 
 This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses. 
@@ -193,12 +198,12 @@ data <- horse %>%
 
 ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   geom_bar(stat="identity", width=1, color="black") +
-  geom_label_repel(aes(label = class2,y =n),
-                   size = 4, min.segment.length = 0, show.legend = FALSE, box.padding = 2, position= "stack",segment.linetype = 6,
-                  segment.curvature = -1e-20) +
+  #geom_label_repel(aes(label = class2,y =n),
+  #                 size = 4, min.segment.length = 0, show.legend = FALSE, box.padding = 2,         #                  position= "stack",segment.linetype = 6,
+  #                 segment.curvature = -1e-20) +
   coord_polar("y", start=0) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
-  scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
+  scale_fill_manual(values = safe_colorblind_palette[1:6],
                     guide_legend(title = "Visits and Outcome"))
 
 ```
@@ -209,7 +214,8 @@ A normal rectal temperature for a horse sits around 37.8. A temperature above ca
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data=horse,aes(x=rectal_temp,fill=outcome)) + 
-  geom_histogram(bins=10,color="blue") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count")
+  geom_histogram(bins=10,color="blue") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count") +
+  scale_fill_manual(values=safe_colorblind_palette[1:3])
 
 ```
 
@@ -229,7 +235,8 @@ bg1<-horse %>%
   geom_bar(position="fill", stat="identity") +
   labs(title = 'Proportion of Extremity\n Temperatures by Outcome',fill = 'Temperature',
        x ="Outcome", y = 'Proportion of Temperatures') + 
-  theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))
+  theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))+
+  scale_fill_manual(values=safe_colorblind_palette[1:4])
 
 
 bg2<-horse %>%
@@ -245,7 +252,8 @@ bg2<-horse %>%
   ggplot(., aes(fill=grouping, y=n, x=outcome)) + 
   geom_bar(position="fill", stat="identity") +
   labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
-  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
+  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
+  scale_fill_manual(values=safe_colorblind_palette[1:2])
 
 
 
@@ -272,10 +280,11 @@ bg3<-horse %>%
   ggplot(., aes(x=outcome, y=n, fill=grouping)) + 
   geom_bar(position="fill", stat="identity") +
   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
-  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
+  theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
+  scale_fill_manual(values=safe_colorblind_palette[1:4])
 
-grid.arrange(bg1,bg2 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
-grid.arrange(bg3 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
+grid.arrange(bg1,bg2 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
+grid.arrange(bg3 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
 
 ```
 
@@ -320,7 +329,8 @@ horse %>%
   summarise(n = n()) %>%
   ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
   geom_bar(stat = "identity",position=position_dodge()) +
-  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")
+  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")+
+  scale_fill_manual(values=safe_colorblind_palette[1:3])
 ```
 
 This table provides some input to the most common lesions found on horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
