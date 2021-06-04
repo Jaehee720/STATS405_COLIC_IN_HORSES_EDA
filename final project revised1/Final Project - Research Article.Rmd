@@ -1,5 +1,5 @@
 ---
-title: "Final Project-Research Article"
+title: "STAT 405: Final Project"
 subtitle: "Research Article"
 author: |
   | David Sun, Elizabeth Morales, Jaehee Jeong
@@ -187,7 +187,7 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
   scale_fill_manual(values = c("#44AA99","#117733","#CC6677","#661100","#56B4E9","#0072B2"),
                     guide_legend(title = "Visits and Outcome"))
-#  theme_void()
+
 ```
 
 ## Physical Attributes
@@ -195,18 +195,8 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
 A normal rectal temperature for a horse sits around 37.8. A temperature above can come from an infection while a low temperature may be due to shock in the body. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-require(gridExtra)
-ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_boxplot()
-
-ht1= ggplot(data=horse %>% filter(outcome=="died"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="red") + coord_flip() + labs(title = "Died Horses by rectal temp") 
-
-ht2= ggplot(data=horse %>% filter(outcome=="euthanized"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="green") + coord_flip() + labs(title = "Euthan. Horses by rectal temp")
-ht3= ggplot(data=horse %>% filter(outcome=="lived"),aes(y=rectal_temp)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
-
-ggplot(data=horse,aes(y=rectal_temp,fill=outcome)) + geom_histogram(bins=10,color="blue") + coord_flip() + labs(title = "Lived Horses by rectal temp")
-
-
-grid.arrange(ht1,ht2,ht3,ncol=3)
+ggplot(data=horse,aes(x=rectal_temp,fill=outcome)) + 
+  geom_histogram(bins=10,color="blue") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count")
 
 ```
 
@@ -217,9 +207,7 @@ The average temperatures are similar between the three outcomes; died, euthanize
 Cold and Cool temperatures are associated with possible shock of the horse, while hotter extremities (in this case denoted as 'Warm') are associated with elevated rectal temperatures. Both cases signal that there is an underlying health issue with the horse. 
 
 ```{R echo=FALSE, message=FALSE, warning=FALSE}
-
-
-
+library(gridExtra)
 bg1<-horse %>%
   filter(temp_of_extremities != "NA") %>%
   group_by(outcome, temp_of_extremities) %>%
@@ -273,15 +261,8 @@ bg3<-horse %>%
   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm'))
 
-
-  
-
-
 grid.arrange(bg1,bg2 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
 grid.arrange(bg3 + scale_fill_manual(values=c("#56B4E9", "#E7298A")),ncol=2)
-
-
-
 
 ```
 
