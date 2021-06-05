@@ -1,6 +1,6 @@
 ---
-title: "STAT 405: Final Project"
-subtitle: "Executive Summary"
+title: "How Does Colic Affect a Horse's Life?"
+subtitle: "Executive Summary - STAT 405: Final Project"
 author: |
   | David Sun, Elizabeth Morales, Jaehee Jeong
   | Sarah Heuschele, Tyler Chun, Yolanda Jin
@@ -59,17 +59,12 @@ if(!exists("xdbsock")) {
 
 drv <- dbDriver("MySQL")
 
-PARTNER_MAS405_AWS_MY_DB_ADMIN_PW='18@@ROuserPW405fun'
-PARTNER_MAS405_AWS_MY_DB_ADMIN_HOST='stats405db.cziy0a015m5d.us-east-1.rds.amazonaws.com'
-PARTNER_MAS405_AWS_MY_DB_ADMIN_USER='ROuser'
-PARTNER_MAS405_AWS_MY_DB_ADMIN_DBNAME='db1'
-PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT=3306
 
-xdbuser <- PARTNER_MAS405_AWS_MY_DB_ADMIN_USER
-xpw     <- PARTNER_MAS405_AWS_MY_DB_ADMIN_PW
-xdbname <- PARTNER_MAS405_AWS_MY_DB_ADMIN_DBNAME
-xdbhost <- PARTNER_MAS405_AWS_MY_DB_ADMIN_HOST
-xdbport <- as.integer(PARTNER_MAS405_AWS_MY_DB_ADMIN_PORT)
+xdbuser <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_USER") ### 
+xpw     <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PW") ### 
+xdbname <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_DBNAME") ### 
+xdbhost <- Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_HOST") ###
+xdbport <- as.integer( Sys.getenv("MAS405_AWS_YOLANDA_DB_RO_PORT") )
 
 con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, port=xdbport, unix.sock=xdbsock)
 ```
@@ -78,7 +73,7 @@ con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, 
 horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
 ```
 
-The research report focuses on the benefits of colic surgery for horses that are admitted into the hospital for abdominal issues. Colic surgery is used to treat issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract. The data gave us a look into 299 hospital cases of horses that were admitted due to poor health, and of those horses which lived, died, or were euthanized. The data also provided an indicator to whether the horse received surgery or not. Our analysis focused on looking at the horses admitted and their outcome. From there, we wanted to explore the key characteristics of the horse’s condition to determine if the outcome could have been different had they received surgery, especially the horses that had symptoms related to Colic Surgery.")
+The research report focuses on the benefits of colic surgery for horses that are admitted into the hospital for abdominal issues. colic surgery is used to treat issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract. The data gave us a look into 299 hospital cases of horses that were admitted due to poor health, and of those horses which lived, died, or were euthanized. The data also provided an indicator to whether the horse received surgery or not. Our analysis focused on looking at the horses admitted and their outcome. From there, we wanted to explore the key characteristics of the horse’s condition to determine if the outcome could have been different had they received surgery, especially the horses that had symptoms related to colic Surgery.")
 
 ```{r echo = F, warning = F, message = F, fig.cap = "Horse Outcome vs Surgery Performed"}
 #, fig.width=5, fig.height = 4, out.width = ".7\\textwidth",
