@@ -4,16 +4,13 @@ author: |
   | Team Name: i need a \</br\>
 date: "6/1/2021"
 margins: 0.4cm
-fontsize: 12pt
+fontsize: 11pt
 line-height: 1.5
 header-includes:
   - \usepackage{wrapfig}
   - \usepackage{lipsum}
 output: 
-  pdf_document:
-    keep_tex: true
-    toc: true
-    toc_depth: 2
+  pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -69,7 +66,7 @@ con <- dbConnect(drv, user=xdbuser, password=xpw, dbname=xdbname, host=xdbhost, 
 horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
 ```
 
-**Conclusions**
+# Conclusions
 
 - Adult horses have higher survival rate than young horses
 - Horses with multiple treatments had a 20% higher chance of being euthanized or dying
@@ -79,29 +76,7 @@ horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
 - About 60% of the lived horses had normal circulation when about 20~25% of the died or euthanized horses had normal circulation
 - About 70% of the horses without surgery survived when horses who had surgery, around 53% lived, and 32% died
 
-The research report focuses on the benefits of colic surgery for horses that are admitted into the hospital for abdominal issues. colic surgery is used to treat issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract. The data gave us a look into 299 hospital cases of horses that were admitted due to poor health, and of those horses which lived, died, or were euthanized. The data also provided an indicator to whether the horse received surgery or not. Our analysis focused on looking at the horses admitted and their outcome. From there, we wanted to explore the key characteristics of the horse’s condition to determine if the outcome could have been different had they received surgery, especially the horses that had symptoms related to colic Surgery.")
-
-```{r echo = F, warning = F,  fig.show="hold", message = F, fig.cap = "Horse Outcome vs Surgery Performed"}
-#, fig.width=5, fig.height = 4, out.width = ".7\\textwidth",
-#, fig.align="right", wrapfigure = list("R", .6)
-horse %>%
-  group_by(surgical_lesion, outcome) %>%
-  summarise(n = n()) %>%
-  ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
-  geom_bar(stat = "identity",position=position_dodge()) +
-  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome") +
-  scale_fill_manual(values=safe_colorblind_palette[1:3]) +
-    geom_text(aes(label = n), size = 2, position=position_dodge(width=0.9), vjust=-0.25) +
-  theme(aspect.ratio = 0.5, axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11))
-```
-
-This analysis is proved useful in determining if colic surgery can be beneficial in saving a horse’s life when admitted into the hospital. Our initial hypothesis was that the increase in surgeries to treat gastrointestinal tract complications in horses would lead to an increase in the number of horses that lived. 
-
-With the data given, we explored the different components of a horse’s health, focusing primarily on their gastrointestinal tract. A few of the key factors were the horse's protein levels, pH levels and rectal temperature. 
-
-From our initial analysis, we found that while the number of horses that lived did not change much between horses who had surgery and those who did not, the number of horse that died after surgery grew by about 3 times the amount of those without surgery.
-
-Based on this discovery, we wanted to explore the correlation what brought the horse to the hospital, if they received surgery, and how that affected the outcome. The data provided insight on whether the horse entered the hospital due to something that was deemed "worthy of surgery." We used this in conjunction with if the horse actually received surgery to expand on the hypothesis that horses that need surgery, and receive surgery, are more likely to live. 
+The research report focuses on the benefits of colic surgery for horses that are admitted into the hospital for abdominal issues. colic surgery is used to treat issues that affect the longevity of a horse, most commonly used to address issues within the gastrointestinal tract. The data gave us a look into 299 hospital cases of horses that were admitted due to poor health, and of those horses which lived, died, or were euthanized. The data also provided an indicator to whether the horse received surgery or not. Our analysis focused on looking at the horses admitted and their outcome. From there, we wanted to explore the key characteristics of the horse’s condition to determine if the outcome could have been different had they received surgery, especially the horses that had symptoms related to colic Surgery.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 data_wide <- horse %>%
@@ -112,6 +87,31 @@ data_wide <- horse %>%
 knitr::kable(data_wide,
   col.names = c("Was it Surgical?","Did They Have Surgery","Died","Euthanized", "Lived"))
 ```
+
+```{r echo = F, warning = F,  fig.show="hold", message = F , fig.width=8,fig.height = 6}
+#, fig.width=5, fig.height = 4, out.width = ".7\\textwidth",
+#, fig.align="right", wrapfigure = list("R", .6)
+#, fig.cap = "Horse Outcome vs Surgery Performed"
+horse %>%
+  group_by(surgical_lesion, outcome) %>%
+  summarise(n = n()) %>%
+  ggplot(., aes(x=surgical_lesion,fill=outcome,y = n)) + 
+  geom_bar(stat = "identity",position=position_dodge()) +
+  labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horse Outcome vs Surgery Performed") +
+  scale_fill_manual(values=safe_colorblind_palette[1:3]) +
+    geom_text(aes(label = n), size = 3.5, position=position_dodge(width=1), vjust=-0.25) +
+  theme(aspect.ratio = 0.5, axis.title.x = element_text(size = 8), axis.title.y = element_text(size = 8), plot.title = element_text(hjust = 0.5, size = 11))
+```
+
+This analysis is proved useful in determining if colic surgery can be beneficial in saving a horse’s life when admitted into the hospital. Our initial hypothesis was that the increase in surgeries to treat gastrointestinal tract complications in horses would lead to an increase in the number of horses that lived. 
+
+With the data given, we explored the different components of a horse’s health, focusing primarily on their gastrointestinal tract. A few of the key factors were the horse's protein levels, pH levels and rectal temperature. 
+
+From our initial analysis, we found that while the number of horses that lived did not change much between horses who had surgery and those who did not, the number of horse that died after surgery grew by about 3 times the amount of those without surgery.
+
+Based on this discovery, we wanted to explore the correlation what brought the horse to the hospital, if they received surgery, and how that affected the outcome. The data provided insight on whether the horse entered the hospital due to something that was deemed "worthy of surgery." We used this in conjunction with if the horse actually received surgery to expand on the hypothesis that horses that need surgery, and receive surgery, are more likely to live. 
+
+
 
 
 
