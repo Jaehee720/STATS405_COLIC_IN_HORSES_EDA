@@ -84,6 +84,7 @@ horse <- dbGetQuery(con, paste0("SELECT * FROM horse"))
 The data has 299 observations and 27 parameters that range from continuous to discrete and nominal variables.
 Below you can find an outline of the variables found within the dataset as well as their respective description.
 
+
 **Variable Name**        **Description**
 -----------------------  ------------------------------------------------------------------------
 ID                       a row indicator which uniquely identifies each row
@@ -136,7 +137,7 @@ horse %>%
     geom_text(aes(label = n), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
   labs(x = "Age of Horse", y = "Count of Horses", fill = "Outcome", title = "Horses by Age and Outcome") +
   scale_fill_manual(values=safe_colorblind_palette[1:3])+
-theme(plot.title = element_text(hjust = 0.5))
+theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11))
 ```
 
 This graph shows number of horses by age groups and outcome which indicates horses' life status. The number of young horses (24) is very small so that it might not be enough to talk about the pattern. The bar graph shows that adult horses have higher lived proportion than young horses. 
@@ -200,7 +201,7 @@ ggplot(data, aes(x="", y=n, fill=reorder(class2, -class3))) +
   labs(title = "Outcome of Horse by Visits to Hospital") +
   scale_fill_manual(values = safe_colorblind_palette[1:6],
                     guide_legend(title = "Visits and Outcome")) +
-  theme(plot.title = element_text(hjust = 0.5))+
+  theme(plot.title = element_text(hjust = 0.5, size = 11))+
   xlab(' ')+ylab(' ')
 
 ```
@@ -213,7 +214,7 @@ A normal rectal temperature for a horse sits around 37.8. A temperature above ca
 ggplot(data=horse,aes(x=rectal_temp,fill=outcome)) + 
   geom_histogram(bins=10,color="black") + labs(title = "Horses Rectal Temp Distribution Across Outcomes", fill = "Outcome", x = "Rectal Temperature",y="Count") +
   scale_fill_manual(values=safe_colorblind_palette[1:3])+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11))
 
 ```
 
@@ -235,7 +236,7 @@ bg1<-horse %>%
        x ="Outcome", y = 'Proportion of Temperatures') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))+
   scale_fill_manual(values=safe_colorblind_palette[1:4])+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11), plot.margin = unit(c(0.2,0.2,0.2,0.2), "cm"))
 
 
 bg2<-horse %>%
@@ -253,7 +254,7 @@ bg2<-horse %>%
   labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
   scale_fill_manual(values=safe_colorblind_palette[1:2])+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11), plot.margin = unit(c(0.2,0.2,0.2,0.2), "cm"))
 
 
 
@@ -282,11 +283,15 @@ bg3<-horse %>%
   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
   scale_fill_manual(values=safe_colorblind_palette[1:4])+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11), plot.margin = unit(c(0.2,0.2,0.2,0.2), "cm"))
+
+#plist <- list(bg1,bg2,bg3,bg3)
+#grid.arrange(grobs = plist, ncol = 2) 
+#wrap_plots(plist,heights = 10)
+#ggarrange(plotlist = plots, ncol=2, nrow = 2)
 
 grid.arrange(bg1,bg2 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
 grid.arrange(bg3 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
-
 ```
 
 Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
@@ -333,7 +338,7 @@ horse %>%
   labs(x = "Indicator if Surgery was Performed", y = "Count of Horses", fill = "Outcome", title = "Horses Outcome vs Surgery Performed")+
   scale_fill_manual(values=safe_colorblind_palette[1:3])+
   geom_text(aes(label = n), size = 3, position=position_dodge(width=0.9), vjust=-0.25)+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(axis.title.x = element_text(size = 9), axis.title.y = element_text(size = 9), plot.title = element_text(hjust = 0.5, size = 11))
 ```
 
 This table provides some input to the most common lesions found on horses and an analysis to compare the horses demographics of age, outcome and if they had surgery in respect to the place of the lesion. 
