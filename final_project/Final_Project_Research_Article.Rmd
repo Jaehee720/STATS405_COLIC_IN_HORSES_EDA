@@ -88,7 +88,6 @@ The data has 299 observations and 27 parameters that range from continuous to di
 Below you can find an outline of the variables found within the dataset as well as their respective description.
 
 
-
 **Variable Name**        **Description**
 -----------------------  ------------------------------------------------------------------------
 ID                       a row indicator which uniquely identifies each row
@@ -220,18 +219,18 @@ The average temperatures are similar between the three outcomes; died, euthanize
 
 Cold and cool temperatures are associated with possible shock of the horse, while hotter extremities (in this case denoted as 'Warm') are associated with elevated rectal temperatures. Both cases signal that there is an underlying health issue with the horse. 
 
-```{R echo=FALSE, message=FALSE, warning=FALSE, fig.width=15, fig.height=20}
+```{R echo=FALSE, message=FALSE, warning=FALSE, fig.width=15, fig.height=22}
 bg1<-horse %>%
   filter(temp_of_extremities != "NA") %>%
   group_by(outcome, temp_of_extremities) %>%
   summarise(n = n_distinct(ID)) %>%
   ggplot(., aes(fill=temp_of_extremities, y=n, x=outcome)) + 
   geom_bar(position="fill", stat="identity") +
-  labs(title = 'Proportion of Extremity\n Temperatures by Outcome',fill = 'Temperature',
+  labs(title = 'Proportion of Extremity\n Temperatures by Outcome \n',fill = 'Temperature',
        x ="Outcome", y = 'Proportion of Temperatures') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.1,'cm'))+
   scale_fill_manual(values=safe_colorblind_palette[1:4])+
-  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18),legend.title = element_text(size = 18),legend.text = element_text(size = 18), plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
+  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18),legend.title = element_text(size = 18),legend.text = element_text(size = 18), plot.margin = unit(c(0.5,0.5,2,0.5), "cm"))
 
 bg2<-horse %>%
   filter(peripheral_pulse != "NA") %>%
@@ -245,10 +244,10 @@ bg2<-horse %>%
   summarise(n = n_distinct(ID)) %>%
   ggplot(., aes(fill=grouping, y=n, x=outcome)) + 
   geom_bar(position="fill", stat="identity") +
-  labs(title = 'Proportion of Good and Bad \n Peripheral Pulse',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
+  labs(title = 'Proportion of Good and Bad \n Peripheral Pulse \n',fill = 'Indicator', x = "Outcome", y = 'Proportion of Pulse') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
   scale_fill_manual(values=safe_colorblind_palette[1:2])+
-  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18), legend.title = element_text(size = 18),legend.text = element_text(size = 18),plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
+  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18), legend.title = element_text(size = 18),legend.text = element_text(size = 18),plot.margin = unit(c(0.5,0.5,2,0.5), "cm"))
 
 
 # bg3<-horse %>%
@@ -276,7 +275,7 @@ bg3<-horse %>%
   labs(title = 'Proportion of Mucous Membrane',fill = 'Indicator', x = "Outcome", y = 'Proportion of Mucous Membrane') + 
   theme(legend.position = "bottom", legend.key.width=unit(0.3,'cm')) +
   scale_fill_manual(values=safe_colorblind_palette[1:4])+
-  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18), axis.title =element_text(size = 18), legend.title = element_text(size = 18),legend.text = element_text(size = 18),plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
+  theme(axis.title.x = element_text(size = 20), axis.title.y = element_text(size = 20), plot.title = element_text(hjust = 0.5, size = 25), axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18), axis.title =element_text(size = 18), legend.title = element_text(size = 18),legend.text = element_text(size = 18),plot.margin = unit(c(2,0.5,0.5,0.5), "cm"))
 
 #plist <- list(bg1,bg2,bg3,bg3)
 #grid.arrange(grobs = plist, ncol = 2) 
@@ -292,6 +291,8 @@ cow_A2F
 #grid.arrange(bg1,bg2 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
 #grid.arrange(bg3 + scale_fill_manual(values=safe_colorblind_palette[1:2]),ncol=2)
 ```
+
+
 Peripheral Pulse is a measure of how fast blood, in the outermost parts of the horse, is moving away from the heart way and is being used to measure the horse's circulation. A normal or increased peripheral pulse is considered normal, however, a reduced or absent pulse in an indicator of poor circulation.
 
 
